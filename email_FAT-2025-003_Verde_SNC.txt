@@ -1,0 +1,63 @@
+===============================================
+EMAIL SOLLECITO PAGAMENTO URGENTE
+===============================================
+
+FATTURA: FAT-2025-003
+CLIENTE: Verde SNC
+IMPORTO RESIDUO: €70.00 (pagato €50 su €120 totali)
+GIORNI DI RITARDO: 36 giorni
+PRIORITÀ: ALTA (oltre 30 giorni)
+DESTINATARIO: info@verde.it
+CANALE PRINCIPALE: SMS (questa email è alternativa)
+DATA GENERAZIONE: 2025-09-30
+
+===============================================
+
+OGGETTO:
+URGENTE - Sollecito pagamento Fattura FAT-2025-003 - Scaduta da 36 giorni
+
+===============================================
+
+CORPO EMAIL:
+
+Gentile Cliente,
+
+con la presente desideriamo segnalarLe con carattere d'urgenza che la seguente fattura risulta scaduta da oltre un mese:
+
+DETTAGLI FATTURA:
+- Numero fattura: FAT-2025-003
+- Data di scadenza: 25 agosto 2025
+- Importo totale: €120,00
+- Importo già pagato: €50,00
+- Importo residuo da saldare: €70,00
+- Giorni di ritardo: 36 giorni
+
+Nonostante il pagamento parziale ricevuto, rimane inevaso l'importo residuo di €70,00. Il significativo ritardo accumulato ci obbliga a sollecitare con urgenza il saldo della fattura.
+
+RICHIESTA DI PAGAMENTO IMMEDIATO:
+La preghiamo di provvedere al versamento dell'importo residuo entro 3 giorni lavorativi dalla ricezione della presente comunicazione.
+
+MODALITÀ DI PAGAMENTO:
+Effettuare bonifico alle coordinate bancarie indicate in fattura, specificando il numero FAT-2025-003 nella causale.
+
+IN CASO DI DIFFICOLTÀ:
+Comprendiamo che possano verificarsi imprevisti. Se sta riscontrando difficoltà nel saldo della fattura, La invitiamo a contattarci quanto prima per valutare insieme eventuali soluzioni alternative (es. piano di rateizzazione).
+
+La mancata regolarizzazione entro i termini indicati ci costringerà ad adottare ulteriori provvedimenti amministrativi.
+
+Restiamo a disposizione per qualsiasi chiarimento urgente.
+
+Cordiali saluti,
+
+[Nome Azienda]
+Ufficio Amministrazione
+[Telefono]
+[Email]
+
+===============================================
+
+MESSAGGIO SMS (Canale principale):
+
+Verde SNC: SOLLECITO URGENTE fattura FAT-2025-003 scaduta da 36 giorni. Importo residuo €70,00 (su €120,00). Pagamento richiesto entro 3 gg. Per info: [telefono]. Grazie.
+
+===============================================

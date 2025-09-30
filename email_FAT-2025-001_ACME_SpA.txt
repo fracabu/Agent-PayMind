@@ -1,0 +1,50 @@
+===============================================
+EMAIL SOLLECITO PAGAMENTO
+===============================================
+
+FATTURA: FAT-2025-001
+CLIENTE: ACME SpA
+IMPORTO RESIDUO: €2,450.00
+GIORNI DI RITARDO: 15 giorni
+PRIORITÀ: ALTA
+DESTINATARIO: contabilita@acme.it
+DATA GENERAZIONE: 2025-09-30
+
+===============================================
+
+OGGETTO:
+Sollecito pagamento Fattura FAT-2025-001 - Scaduta il 15/09/2025
+
+===============================================
+
+CORPO EMAIL:
+
+Gentile Cliente,
+
+con la presente desideriamo cortesemente ricordarLe che alla data odierna risulta ancora inevasa la seguente fattura:
+
+DETTAGLI FATTURA:
+- Numero fattura: FAT-2025-001
+- Data di scadenza: 15 settembre 2025
+- Importo totale: €2.450,00
+- Importo pagato: €0,00
+- Importo residuo da saldare: €2.450,00
+- Giorni di ritardo: 15 giorni
+
+Non avendo ancora ricevuto il pagamento, Le chiediamo cortesemente di provvedere al saldo dell'importo sopra indicato entro i prossimi 5 giorni lavorativi.
+
+MODALITÀ DI PAGAMENTO:
+La preghiamo di effettuare il bonifico utilizzando le coordinate bancarie indicate in fattura, avendo cura di specificare il numero di fattura nella causale del versamento.
+
+Qualora il pagamento sia già stato effettuato o siano presenti contestazioni relative alla fattura, La preghiamo di contattarci tempestivamente per consentirci di aggiornare la nostra contabilità o risolvere eventuali problematiche.
+
+Restiamo a disposizione per qualsiasi chiarimento.
+
+Cordiali saluti,
+
+[Nome Azienda]
+Ufficio Amministrazione
+[Telefono]
+[Email]
+
+===============================================
