@@ -1,5 +1,8 @@
 # 💰 PayMind - AI Payment Reminder System
 
+![CI](https://github.com/fracabu/Agent-PayMind/actions/workflows/ci.yml/badge.svg)
+
+
 Sistema intelligente di gestione automatica dei solleciti di pagamento basato su **Agenti AI Claude Code**.
 
 PayMind utilizza agenti AI autonomi per analizzare fatture scadute, generare messaggi personalizzati per ogni canale di comunicazione (Email, SMS, WhatsApp) e analizzare le risposte dei clienti.
