@@ -110,8 +110,9 @@ Required columns: `invoice_id`, `customer_name`, `amount_total`, `amount_paid`, 
 | `/api/agents/payment-monitor` | POST | Run invoice analysis |
 | `/api/agents/reminder-generator` | POST | Generate reminder messages |
 | `/api/agents/response-handler` | POST | Analyze customer response |
-| `/api/invoices` | GET/POST | CRUD for invoices |
+| `/api/invoices` | GET/POST/DELETE | CRUD for invoices |
 | `/api/settings` | GET/POST | AI provider settings |
+| `/api/workflow-runs` | GET/POST/DELETE | Workflow execution history |
 
 ## Dark Mode (Tailwind v4)
 
@@ -131,6 +132,7 @@ Theme flow:
 - `dashboard/src/lib/ai-providers.ts` - Multi-provider AI abstraction with `callAI()`, `AVAILABLE_MODELS`, `PROVIDER_INFO`
 - `dashboard/src/lib/agents.ts` - System prompts: `PAYMENT_MONITOR_PROMPT`, `REMINDER_GENERATOR_PROMPT`, `RESPONSE_HANDLER_PROMPT`
 - `dashboard/src/lib/store.ts` - Global Zustand state including `aiSettings`, `theme`, `language`
+- `dashboard/src/lib/i18n.ts` - Translation system with `useTranslation()` hook and `formatMessage()` for parameterized strings
 - `dashboard/src/types/index.ts` - TypeScript interfaces: Agent, Invoice, LogEntry, WorkflowStep, AnalysisResult
 - `dashboard/prisma/schema.prisma` - Database models: Invoice, Message, ResponseAnalysis, WorkflowRun, WorkflowLog
 - `dashboard/src/app/globals.css` - Tailwind v4 config with dark mode custom variant

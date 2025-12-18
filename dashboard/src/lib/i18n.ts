@@ -187,6 +187,10 @@ export const translations = {
     extractedRiferimento: 'Riferimento',
     extractedNote: 'Note',
 
+    // Workflow control
+    stopWorkflow: 'Ferma',
+    workflowStopped: 'Workflow interrotto',
+
     // Log messages
     logLoadingInvoices: 'Caricamento {count} fatture...',
     logInvoicesLoaded: 'Caricate {count} fatture nel database',
@@ -212,6 +216,9 @@ export const translations = {
     logSaveSuccess: 'Workflow salvato nello storico',
     logSaveError: 'Errore salvataggio: {error}',
     logLoadedFromHistory: 'Workflow caricato dallo storico',
+
+    // Simulated customer message
+    simulatedCustomerMessage: 'Buongiorno, abbiamo ricevuto il vostro sollecito. Purtroppo in questo momento abbiamo difficoltà di liquidità. Sarebbe possibile rateizzare l\'importo in 3 rate mensili? Confermiamo la nostra volontà di saldare il debito.',
   },
   en: {
     // Header
@@ -399,6 +406,10 @@ export const translations = {
     extractedRiferimento: 'Reference',
     extractedNote: 'Notes',
 
+    // Workflow control
+    stopWorkflow: 'Stop',
+    workflowStopped: 'Workflow stopped',
+
     // Log messages
     logLoadingInvoices: 'Loading {count} invoices...',
     logInvoicesLoaded: 'Loaded {count} invoices to database',
@@ -424,6 +435,9 @@ export const translations = {
     logSaveSuccess: 'Workflow saved to history',
     logSaveError: 'Save error: {error}',
     logLoadedFromHistory: 'Workflow loaded from history',
+
+    // Simulated customer message
+    simulatedCustomerMessage: 'Good morning, we have received your payment reminder. Unfortunately, we are currently experiencing cash flow difficulties. Would it be possible to split the amount into 3 monthly installments? We confirm our intention to settle the debt.',
   },
 } as const;
 

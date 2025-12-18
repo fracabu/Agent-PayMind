@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Invoice, AnalysisResult } from '@/types';
-import { FileText, AlertTriangle, TrendingUp, Users } from 'lucide-react';
+import { FileText, AlertTriangle, TrendingUp, Users, Copy, Download, Check } from 'lucide-react';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface AnalysisReportProps {
@@ -13,6 +14,7 @@ interface AnalysisReportProps {
 
 export default function AnalysisReport({ result, invoices, isVisible, language }: AnalysisReportProps) {
   const { t } = useTranslation(language);
+  const [copied, setCopied] = useState(false);
 
   if (!isVisible || !result) return null;
 
@@ -26,9 +28,51 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
     ? Math.round(overdueInvoices.reduce((sum, inv) => sum + (inv.days_overdue || 0), 0) / overdueInvoices.length)
     : 0;
 
+  const getReportData = () => ({
+    exportDate: new Date().toISOString(),
+    summary: {
+      totalInvoices: result.totalInvoices,
+      overdueInvoices: result.overdueInvoices,
+      avgDaysOverdue,
+      disputedCount: disputedInvoices.length,
+    },
+    priority: result.byPriority,
+    financial: {
+      totalCredits: result.totalCredits,
+      overdueAmount: result.overdueAmount,
+      overduePercent: result.totalCredits > 0 ? ((result.overdueAmount / result.totalCredits) * 100).toFixed(1) : 0,
+    },
+    topDebtors: overdueInvoices
+      .sort((a, b) => (b.amount_total - b.amount_paid) - (a.amount_total - a.amount_paid))
+      .slice(0, 5)
+      .map(inv => ({
+        customer: inv.customer_name,
+        invoiceId: inv.invoice_id,
+        amount: inv.amount_total - inv.amount_paid,
+      })),
+  });
+
+  const handleCopy = async () => {
+    const data = getReportData();
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const data = getReportData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analysis-report-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20 flex items-center justify-between">
         <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-500" />
           {t('invoiceAnalysisReport')}
@@ -36,6 +80,22 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
             payment-monitor-agent
           </span>
         </h2>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleCopy}
+            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            title={language === 'it' ? 'Copia JSON' : 'Copy JSON'}
+          >
+            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={handleDownload}
+            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            title={language === 'it' ? 'Scarica JSON' : 'Download JSON'}
+          >
+            <Download className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-4 max-h-96 overflow-y-auto">

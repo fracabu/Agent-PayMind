@@ -26,7 +26,7 @@ export interface AIResponse {
 const DEFAULT_MODELS: Record<AIProvider, string> = {
   anthropic: 'claude-sonnet-4-5-20250929',
   openai: 'gpt-5.2',
-  openrouter: 'anthropic/claude-sonnet-4',
+  openrouter: 'google/gemini-2.0-flash-exp:free', // FREE by default!
   gemini: 'gemini-2.5-flash',
 };
 
@@ -167,10 +167,31 @@ export const AVAILABLE_MODELS: Record<AIProvider, { id: string; name: string }[]
     { id: 'o4-mini', name: 'o4-mini (Fast Reasoning)' },
   ],
   openrouter: [
-    { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4 (OR)' },
-    { id: 'openai/gpt-5.2', name: 'GPT-5.2 (OR)' },
-    { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash (OR)' },
-    { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B (OR)' },
+    // FREE Models
+    { id: 'google/gemini-2.0-flash-exp:free', name: '🆓 Gemini 2.0 Flash (FREE)' },
+    { id: 'deepseek/deepseek-r1-0528:free', name: '🆓 DeepSeek R1 Reasoning (FREE)' },
+    { id: 'meta-llama/llama-3.3-70b-instruct:free', name: '🆓 Llama 3.3 70B (FREE)' },
+    { id: 'mistralai/devstral-2512:free', name: '🆓 Devstral Coding (FREE)' },
+    { id: 'mistralai/mistral-small-3.1-24b-instruct:free', name: '🆓 Mistral Small 3.1 (FREE)' },
+    // Google Gemini
+    { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro ($1.25/$10)' },
+    { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash ($0.30/$2.50)' },
+    // Anthropic Claude
+    { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4 ($3/$15)' },
+    { id: 'anthropic/claude-3.5-haiku', name: 'Claude 3.5 Haiku ($0.80/$4)' },
+    { id: 'anthropic/claude-opus-4', name: 'Claude Opus 4 ($15/$75)' },
+    // OpenAI
+    { id: 'openai/gpt-4o', name: 'GPT-4o ($2.50/$10)' },
+    { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini ($0.15/$0.60)' },
+    { id: 'openai/o3-mini', name: 'o3-mini Reasoning ($1.10/$4.40)' },
+    // DeepSeek
+    { id: 'deepseek/deepseek-v3.2', name: 'DeepSeek V3.2 ($0.26/$0.38)' },
+    { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 ($0.30/$1.20)' },
+    // Mistral
+    { id: 'mistralai/mistral-large-2512', name: 'Mistral Large ($0.50/$1.50)' },
+    // Meta Llama
+    { id: 'meta-llama/llama-4-maverick', name: 'Llama 4 Maverick 1M ($0.15/$0.60)' },
+    { id: 'meta-llama/llama-4-scout', name: 'Llama 4 Scout ($0.08/$0.30)' },
   ],
   gemini: [
     { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash (Recommended)' },

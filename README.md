@@ -152,6 +152,32 @@ invoice_id,customer_name,amount_total,amount_paid,due_date,status,preferred_chan
 FAT-2025-001,ACME SpA,2450.00,0.00,2025-09-15,open,email,contabilita@acme.it,+393401234567
 ```
 
+### 🔌 OpenRouter - 18+ Modelli AI
+
+PayMind supporta **OpenRouter** per accedere a 18+ modelli da diversi provider con una sola API key.
+
+#### 🆓 Modelli GRATUITI
+
+| Modello | Provider | Ideale per |
+|---------|----------|------------|
+| Gemini 2.0 Flash | Google | Uso generale (**Default**) |
+| DeepSeek R1 | DeepSeek | Ragionamento |
+| Llama 3.3 70B | Meta | Risposte di qualità |
+| Devstral | Mistral | Coding |
+| Mistral Small 3.1 | Mistral | Risposte veloci |
+
+#### 💰 Modelli a Pagamento (prezzo per 1M token)
+
+| Modello | Input | Output |
+|---------|-------|--------|
+| Gemini 2.5 Pro | $1.25 | $10 |
+| Claude Sonnet 4 | $3 | $15 |
+| Claude 3.5 Haiku | $0.80 | $4 |
+| GPT-4o | $2.50 | $10 |
+| GPT-4o Mini | $0.15 | $0.60 |
+| DeepSeek V3.2 | $0.26 | $0.38 |
+| Llama 4 Scout | $0.08 | $0.30 |
+
 ### ⚙️ Variabili d'Ambiente
 
 Crea `dashboard/.env`:
@@ -159,7 +185,7 @@ Crea `dashboard/.env`:
 DATABASE_URL="file:./dev.db"
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...           # Opzionale
-OPENROUTER_API_KEY=...          # Opzionale
+OPENROUTER_API_KEY=...          # Opzionale - accesso a 18+ modelli!
 GEMINI_API_KEY=...              # Opzionale
 ```
 
@@ -254,6 +280,32 @@ claude "response-handler-agent: analyze this response: [text]"
 | 🟠 **MEDIA** | 60-90 days overdue | Follow-up within 48h |
 | ⚪ **BASSA** | <60 days overdue | Standard reminder |
 
+### 🔌 OpenRouter - 18+ AI Models
+
+PayMind supports **OpenRouter** to access 18+ models from multiple providers with a single API key.
+
+#### 🆓 FREE Models
+
+| Model | Provider | Best For |
+|-------|----------|----------|
+| Gemini 2.0 Flash | Google | General purpose (**Default**) |
+| DeepSeek R1 | DeepSeek | Reasoning tasks |
+| Llama 3.3 70B | Meta | High-quality responses |
+| Devstral | Mistral | Coding tasks |
+| Mistral Small 3.1 | Mistral | Fast responses |
+
+#### 💰 Paid Models (price per 1M tokens)
+
+| Model | Input | Output |
+|-------|-------|--------|
+| Gemini 2.5 Pro | $1.25 | $10 |
+| Claude Sonnet 4 | $3 | $15 |
+| Claude 3.5 Haiku | $0.80 | $4 |
+| GPT-4o | $2.50 | $10 |
+| GPT-4o Mini | $0.15 | $0.60 |
+| DeepSeek V3.2 | $0.26 | $0.38 |
+| Llama 4 Scout | $0.08 | $0.30 |
+
 ### ⚙️ Environment Variables
 
 Create `dashboard/.env`:
@@ -261,7 +313,7 @@ Create `dashboard/.env`:
 DATABASE_URL="file:./dev.db"
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...           # Optional
-OPENROUTER_API_KEY=...          # Optional
+OPENROUTER_API_KEY=...          # Optional - access to 18+ models!
 GEMINI_API_KEY=...              # Optional
 ```
 
@@ -280,6 +332,7 @@ GEMINI_API_KEY=...              # Optional
 - [x] SQLite database with Prisma
 - [x] Dark/Light mode toggle
 - [x] Bilingual support (IT/EN)
+- [x] OpenRouter integration with 18+ models (5 FREE!)
 - [ ] Email sending via SMTP
 - [ ] WhatsApp Business API integration
 - [ ] PDF report export

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useTranslation, formatMessage, Language } from '@/lib/i18n';
 import Header from '@/components/Header';
@@ -23,6 +23,9 @@ export default function Dashboard() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [historyRefresh, setHistoryRefresh] = useState(0);
+
+  // AbortController for stopping workflow
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const {
     agents,
@@ -146,8 +149,20 @@ export default function Dashboard() {
     }
   }, [setInvoices, addLog, updateWorkflowStep, t, logMsg]);
 
+  // Stop the running workflow
+  const stopWorkflow = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  }, []);
+
   const runWorkflow = useCallback(async () => {
     if (invoices.length === 0) return;
+
+    // Create new AbortController for this workflow run
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setWorkflowRunning(true);
     setShowAnalysisReport(false);
@@ -184,6 +199,7 @@ export default function Dashboard() {
           apiKey: aiSettings.apiKey,
           language,
         }),
+        signal,
       });
 
       if (!monitorResponse.ok) {
@@ -219,6 +235,7 @@ export default function Dashboard() {
           apiKey: aiSettings.apiKey,
           language,
         }),
+        signal,
       });
 
       if (!reminderResponse.ok) {
@@ -257,7 +274,7 @@ export default function Dashboard() {
       const handlerStartTime = Date.now();
 
       // Simulated customer response
-      const customerMessage = "Buongiorno, abbiamo ricevuto il vostro sollecito. Purtroppo in questo momento abbiamo difficoltà di liquidità. Sarebbe possibile rateizzare l'importo in 3 rate mensili? Confermiamo la nostra volontà di saldare il debito.";
+      const customerMessage = t('simulatedCustomerMessage');
 
       const handlerResponse = await fetch('/api/agents/response-handler', {
         method: 'POST',
@@ -270,6 +287,7 @@ export default function Dashboard() {
           apiKey: aiSettings.apiKey,
           language,
         }),
+        signal,
       });
 
       if (!handlerResponse.ok) {
@@ -303,14 +321,25 @@ export default function Dashboard() {
 
       addLog({ agent: t('system'), message: logMsg('logWorkflowComplete'), type: 'success' });
     } catch (error) {
-      addLog({ agent: t('system'), message: logMsg('logError', { error: error instanceof Error ? error.message : 'Unknown error' }), type: 'error' });
+      // Check if the workflow was aborted by the user
+      if (error instanceof Error && error.name === 'AbortError') {
+        addLog({ agent: t('system'), message: logMsg('workflowStopped'), type: 'warning' });
 
-      // Reset agent states on error
-      setAgentStatus('payment-monitor', 'error');
-      setAgentStatus('reminder-generator', 'error');
-      setAgentStatus('response-handler', 'error');
+        // Reset agent states to idle on abort
+        setAgentStatus('payment-monitor', 'idle');
+        setAgentStatus('reminder-generator', 'idle');
+        setAgentStatus('response-handler', 'idle');
+      } else {
+        addLog({ agent: t('system'), message: logMsg('logError', { error: error instanceof Error ? error.message : 'Unknown error' }), type: 'error' });
+
+        // Reset agent states on error
+        setAgentStatus('payment-monitor', 'error');
+        setAgentStatus('reminder-generator', 'error');
+        setAgentStatus('response-handler', 'error');
+      }
     } finally {
       setWorkflowRunning(false);
+      abortControllerRef.current = null;
     }
   }, [invoices, aiSettings, language, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, t, logMsg]);
 
@@ -453,6 +482,7 @@ export default function Dashboard() {
       <Header
         onUpload={() => setIsUploadOpen(true)}
         onRunWorkflow={runWorkflow}
+        onStopWorkflow={stopWorkflow}
         onReset={handleReset}
         onSettings={() => setIsSettingsOpen(true)}
         isRunning={isWorkflowRunning}
