@@ -103,18 +103,27 @@ export default function Dashboard() {
     const pageHeight = doc.internal.pageSize.getHeight();
     let yPos = 20;
 
+    // Professional color palette (muted, corporate)
+    const colors = {
+      primary: [30, 41, 59],      // Slate 800
+      secondary: [71, 85, 105],   // Slate 500
+      light: [241, 245, 249],     // Slate 100
+      border: [203, 213, 225],    // Slate 300
+      text: [51, 65, 85],         // Slate 700
+      muted: [148, 163, 184],     // Slate 400
+      accent: [59, 130, 246],     // Blue 500 (subtle accent)
+    };
+
     // Helper functions
     const addSectionTitle = (text: string) => {
-      doc.setFontSize(14);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(31, 41, 55);
-      doc.text(text, 14, yPos);
-      yPos += 2;
-      // Underline
-      doc.setDrawColor(59, 130, 246);
-      doc.setLineWidth(0.5);
-      doc.line(14, yPos, 80, yPos);
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+      doc.text(text.toUpperCase(), 14, yPos);
+      yPos += 3;
+      doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+      doc.setLineWidth(0.3);
+      doc.line(14, yPos, pageWidth - 14, yPos);
       yPos += 8;
     };
 
@@ -132,169 +141,105 @@ export default function Dashboard() {
       }).format(amount);
     };
 
-    // === HEADER ===
-    doc.setFillColor(59, 130, 246);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-
-    // Logo circle
-    doc.setFillColor(255, 255, 255);
-    doc.circle(25, 20, 8, 'F');
-    doc.setFillColor(245, 158, 11);
-    doc.circle(25, 20, 5, 'F');
+    // === HEADER (minimal, professional) ===
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, 0, pageWidth, 28, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(28);
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('PayMind', 40, 22);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text(language === 'it' ? 'Report Analisi Fatture' : 'Invoice Analysis Report', 40, 32);
-    doc.setTextColor(0, 0, 0);
-    yPos = 50;
-
-    // Date and AI info
-    doc.setFillColor(249, 250, 251);
-    doc.roundedRect(14, yPos, pageWidth - 28, 12, 2, 2, 'F');
+    doc.text('PayMind', 14, 14);
     doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.text(`${language === 'it' ? 'Generato il' : 'Generated on'}: ${new Date().toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}`, 18, yPos + 8);
-    doc.text(`AI: ${aiSettings.provider} / ${aiSettings.model}`, pageWidth - 18, yPos + 8, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text(language === 'it' ? 'Report Analisi Crediti' : 'Credit Analysis Report', 14, 22);
+
+    // Date on right
+    doc.setFontSize(8);
+    doc.text(new Date().toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US'), pageWidth - 14, 14, { align: 'right' });
+    doc.text(`${aiSettings.provider} / ${aiSettings.model}`, pageWidth - 14, 22, { align: 'right' });
+
     doc.setTextColor(0, 0, 0);
-    yPos += 22;
+    yPos = 38;
 
     if (analysisResult) {
-      // === EXECUTIVE SUMMARY CARDS ===
-      addSectionTitle(language === 'it' ? 'RIEPILOGO ESECUTIVO' : 'EXECUTIVE SUMMARY');
+      // === EXECUTIVE SUMMARY (table format, professional) ===
+      addSectionTitle(language === 'it' ? 'Riepilogo Esecutivo' : 'Executive Summary');
 
       const overdueInvoicesList = invoices.filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0);
       const avgDays = overdueInvoicesList.length > 0
         ? Math.round(overdueInvoicesList.reduce((sum, inv) => sum + (inv.days_overdue || 0), 0) / overdueInvoicesList.length)
         : 0;
-
-      // 4 stat cards
-      const cardWidth = (pageWidth - 28 - 12) / 4;
-      const cardHeight = 25;
-      const cards = [
-        { label: language === 'it' ? 'Fatture Totali' : 'Total Invoices', value: String(analysisResult.totalInvoices), color: [59, 130, 246] },
-        { label: language === 'it' ? 'Scadute' : 'Overdue', value: String(analysisResult.overdueInvoices), color: [239, 68, 68] },
-        { label: language === 'it' ? 'Ritardo Medio' : 'Avg Delay', value: `${avgDays} ${language === 'it' ? 'gg' : 'd'}`, color: [245, 158, 11] },
-        { label: language === 'it' ? 'Crediti Totali' : 'Total Credits', value: formatCurrency(analysisResult.totalCredits), color: [34, 197, 94] },
-      ];
-
-      cards.forEach((card, idx) => {
-        const x = 14 + idx * (cardWidth + 4);
-        doc.setFillColor(card.color[0], card.color[1], card.color[2]);
-        doc.roundedRect(x, yPos, cardWidth, cardHeight, 2, 2, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text(card.label, x + cardWidth / 2, yPos + 8, { align: 'center' });
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text(card.value, x + cardWidth / 2, yPos + 18, { align: 'center' });
-      });
-      doc.setTextColor(0, 0, 0);
-      yPos += cardHeight + 15;
-
-      // === PRIORITY BAR CHART ===
-      checkPageBreak(70);
-      addSectionTitle(language === 'it' ? 'SEGMENTAZIONE PRIORITA' : 'PRIORITY SEGMENTATION');
-
-      const priorities = [
-        { label: language === 'it' ? 'ALTA' : 'HIGH', value: analysisResult.byPriority.alta, color: [239, 68, 68] },
-        { label: language === 'it' ? 'MEDIA' : 'MEDIUM', value: analysisResult.byPriority.media, color: [245, 158, 11] },
-        { label: language === 'it' ? 'BASSA' : 'LOW', value: analysisResult.byPriority.bassa, color: [156, 163, 175] },
-      ];
-      const maxVal = Math.max(...priorities.map(p => p.value), 1);
-      const barMaxWidth = 100;
-      const barHeight = 12;
-
-      priorities.forEach((p, idx) => {
-        const barY = yPos + idx * (barHeight + 8);
-        const barWidth = (p.value / maxVal) * barMaxWidth;
-        const percent = analysisResult.totalInvoices > 0 ? ((p.value / analysisResult.totalInvoices) * 100).toFixed(0) : 0;
-
-        // Label
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(55, 65, 81);
-        doc.text(p.label, 14, barY + 8);
-
-        // Background bar
-        doc.setFillColor(229, 231, 235);
-        doc.roundedRect(50, barY, barMaxWidth, barHeight, 2, 2, 'F');
-
-        // Value bar
-        if (barWidth > 0) {
-          doc.setFillColor(p.color[0], p.color[1], p.color[2]);
-          doc.roundedRect(50, barY, barWidth, barHeight, 2, 2, 'F');
-        }
-
-        // Value text
-        doc.setTextColor(55, 65, 81);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`${p.value} (${percent}%)`, 155, barY + 8);
-      });
-      doc.setTextColor(0, 0, 0);
-      yPos += priorities.length * (barHeight + 8) + 15;
-
-      // === FINANCIAL SUMMARY ===
-      checkPageBreak(50);
-      addSectionTitle(language === 'it' ? 'RIEPILOGO FINANZIARIO' : 'FINANCIAL SUMMARY');
-
       const overduePercent = analysisResult.totalCredits > 0
         ? ((analysisResult.overdueAmount / analysisResult.totalCredits) * 100).toFixed(1)
         : '0';
 
-      // Pie chart representation (simple)
-      const pieX = 35;
-      const pieY = yPos + 20;
-      const pieR = 18;
+      autoTable(doc, {
+        startY: yPos,
+        head: [],
+        body: [
+          [language === 'it' ? 'Fatture Analizzate' : 'Invoices Analyzed', String(analysisResult.totalInvoices)],
+          [language === 'it' ? 'Fatture Scadute' : 'Overdue Invoices', String(analysisResult.overdueInvoices)],
+          [language === 'it' ? 'Ritardo Medio' : 'Average Delay', `${avgDays} ${language === 'it' ? 'giorni' : 'days'}`],
+          [language === 'it' ? 'Crediti Totali' : 'Total Credits', formatCurrency(analysisResult.totalCredits)],
+          [language === 'it' ? 'Importo Scaduto' : 'Overdue Amount', formatCurrency(analysisResult.overdueAmount)],
+          [language === 'it' ? 'Percentuale Scaduto' : 'Overdue Percentage', `${overduePercent}%`],
+        ],
+        theme: 'plain',
+        styles: {
+          fontSize: 9,
+          cellPadding: 4,
+        },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 60, textColor: colors.secondary },
+          1: { halign: 'left', textColor: colors.text },
+        },
+        margin: { left: 14, right: 14 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
 
-      // Full circle (total)
-      doc.setFillColor(34, 197, 94);
-      doc.circle(pieX, pieY, pieR, 'F');
+      // === PRIORITY BREAKDOWN (simple table) ===
+      checkPageBreak(50);
+      addSectionTitle(language === 'it' ? 'Segmentazione per Priorita' : 'Priority Breakdown');
 
-      // Overdue segment
-      if (parseFloat(overduePercent) > 0) {
-        const angle = (parseFloat(overduePercent) / 100) * 2 * Math.PI;
-        doc.setFillColor(239, 68, 68);
-        // Draw pie slice
-        doc.circle(pieX, pieY, pieR, 'F');
-        doc.setFillColor(34, 197, 94);
-        // Approximate with a mask
-        if (parseFloat(overduePercent) < 100) {
-          const startAngle = -Math.PI / 2;
-          const endAngle = startAngle + (1 - parseFloat(overduePercent) / 100) * 2 * Math.PI;
-          // Simple visualization - just show proportional coloring
-          doc.setFillColor(239, 68, 68);
-          doc.circle(pieX, pieY, pieR, 'F');
-          doc.setFillColor(34, 197, 94);
-          doc.circle(pieX, pieY, pieR * (1 - parseFloat(overduePercent) / 100), 'F');
-        }
-      }
-
-      // Legend
-      const legendX = 70;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-
-      doc.setFillColor(34, 197, 94);
-      doc.rect(legendX, yPos + 5, 8, 8, 'F');
-      doc.setTextColor(55, 65, 81);
-      doc.text(`${language === 'it' ? 'Crediti Totali' : 'Total Credits'}: ${formatCurrency(analysisResult.totalCredits)}`, legendX + 12, yPos + 12);
-
-      doc.setFillColor(239, 68, 68);
-      doc.rect(legendX, yPos + 18, 8, 8, 'F');
-      doc.text(`${language === 'it' ? 'Importo Scaduto' : 'Overdue'}: ${formatCurrency(analysisResult.overdueAmount)} (${overduePercent}%)`, legendX + 12, yPos + 25);
-
-      yPos += 50;
+      autoTable(doc, {
+        startY: yPos,
+        head: [[
+          language === 'it' ? 'Priorita' : 'Priority',
+          language === 'it' ? 'N. Fatture' : 'Invoices',
+          '%'
+        ]],
+        body: [
+          [language === 'it' ? 'Alta' : 'High', String(analysisResult.byPriority.alta), `${((analysisResult.byPriority.alta / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
+          [language === 'it' ? 'Media' : 'Medium', String(analysisResult.byPriority.media), `${((analysisResult.byPriority.media / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
+          [language === 'it' ? 'Bassa' : 'Low', String(analysisResult.byPriority.bassa), `${((analysisResult.byPriority.bassa / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
+        ],
+        theme: 'striped',
+        headStyles: {
+          fillColor: colors.primary,
+          textColor: 255,
+          fontStyle: 'bold',
+          fontSize: 9,
+        },
+        bodyStyles: {
+          fontSize: 9,
+        },
+        alternateRowStyles: {
+          fillColor: colors.light,
+        },
+        columnStyles: {
+          1: { halign: 'center' },
+          2: { halign: 'center' },
+        },
+        margin: { left: 14, right: 14 },
+        tableWidth: 100,
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
     }
 
     // === INVOICES TABLE ===
     if (invoices.length > 0) {
       checkPageBreak(60);
-      addSectionTitle(language === 'it' ? 'DETTAGLIO FATTURE SCADUTE' : 'OVERDUE INVOICES DETAIL');
+      addSectionTitle(language === 'it' ? 'Dettaglio Fatture Scadute' : 'Overdue Invoices Detail');
 
       const overdueInvoices = invoices
         .filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0)
@@ -306,8 +251,8 @@ export default function Dashboard() {
           head: [[
             'ID',
             language === 'it' ? 'Cliente' : 'Customer',
-            language === 'it' ? 'Importo Dovuto' : 'Amount Due',
-            language === 'it' ? 'Giorni Ritardo' : 'Days Overdue',
+            language === 'it' ? 'Importo' : 'Amount',
+            language === 'it' ? 'Giorni' : 'Days',
             language === 'it' ? 'Priorita' : 'Priority'
           ]],
           body: overdueInvoices.map(inv => [
@@ -317,42 +262,42 @@ export default function Dashboard() {
             String(inv.days_overdue || 0),
             (inv.priority || 'N/A').toUpperCase()
           ]),
-          theme: 'grid',
+          theme: 'striped',
           headStyles: {
-            fillColor: [239, 68, 68],
+            fillColor: colors.primary,
             textColor: 255,
             fontStyle: 'bold',
-            halign: 'center'
-          },
-          bodyStyles: {
             fontSize: 9,
           },
+          bodyStyles: {
+            fontSize: 8,
+          },
           alternateRowStyles: {
-            fillColor: [254, 242, 242]
+            fillColor: colors.light,
           },
           columnStyles: {
-            0: { cellWidth: 30 },
+            0: { cellWidth: 28 },
             2: { halign: 'right' },
-            3: { halign: 'center' },
-            4: { halign: 'center' }
+            3: { halign: 'center', cellWidth: 20 },
+            4: { halign: 'center', cellWidth: 22 }
           },
           margin: { left: 14, right: 14 },
         });
-        yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
+        yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
       }
     }
 
     // === GENERATED MESSAGES ===
     if (generatedMessages.length > 0) {
       checkPageBreak(60);
-      addSectionTitle(language === 'it' ? 'MESSAGGI SOLLECITO GENERATI' : 'GENERATED REMINDER MESSAGES');
+      addSectionTitle(language === 'it' ? 'Messaggi Generati' : 'Generated Messages');
 
       autoTable(doc, {
         startY: yPos,
         head: [[
           language === 'it' ? 'Canale' : 'Channel',
           language === 'it' ? 'Cliente' : 'Customer',
-          'ID Fattura',
+          'ID',
           language === 'it' ? 'Priorita' : 'Priority'
         ]],
         body: generatedMessages.map(msg => [
@@ -361,89 +306,72 @@ export default function Dashboard() {
           msg.invoice_id,
           (msg.priority || 'N/A').toUpperCase()
         ]),
-        theme: 'grid',
+        theme: 'striped',
         headStyles: {
-          fillColor: [139, 92, 246],
+          fillColor: colors.secondary,
           textColor: 255,
           fontStyle: 'bold',
-          halign: 'center'
-        },
-        bodyStyles: {
           fontSize: 9,
         },
+        bodyStyles: {
+          fontSize: 8,
+        },
         alternateRowStyles: {
-          fillColor: [245, 243, 255]
+          fillColor: colors.light,
         },
         columnStyles: {
-          0: { cellWidth: 25, halign: 'center' },
-          3: { halign: 'center' }
+          0: { cellWidth: 22, halign: 'center' },
+          3: { halign: 'center', cellWidth: 22 }
         },
         margin: { left: 14, right: 14 },
       });
-      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
     }
 
     // === RESPONSE ANALYSIS ===
     if (responseAnalysis) {
-      checkPageBreak(80);
-      addSectionTitle(language === 'it' ? 'ANALISI RISPOSTA CLIENTE' : 'CUSTOMER RESPONSE ANALYSIS');
+      checkPageBreak(60);
+      addSectionTitle(language === 'it' ? 'Analisi Risposta Cliente' : 'Customer Response Analysis');
 
-      // Info box
-      doc.setFillColor(240, 249, 255);
-      doc.setDrawColor(59, 130, 246);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(14, yPos, pageWidth - 28, 55, 3, 3, 'FD');
-
-      let infoY = yPos + 10;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(31, 41, 55);
-
-      doc.text(`Intent:`, 20, infoY);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${responseAnalysis.intent || 'N/A'} (${responseAnalysis.confidence || 0}% confidence)`, 50, infoY);
-
-      infoY += 10;
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Sentiment:`, 20, infoY);
-      doc.setFont('helvetica', 'normal');
-      const sentiment = responseAnalysis.sentiment || 'neutral';
-      const sentimentColor = sentiment === 'positive' ? [34, 197, 94] :
-                             sentiment === 'negative' ? [239, 68, 68] : [107, 114, 128];
-      doc.setTextColor(sentimentColor[0], sentimentColor[1], sentimentColor[2]);
-      doc.text(sentiment, 50, infoY);
-      doc.setTextColor(31, 41, 55);
-
-      infoY += 10;
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${language === 'it' ? 'Rischio' : 'Risk'}:`, 20, infoY);
-      doc.setFont('helvetica', 'normal');
       const riskLevel = responseAnalysis.risk_level || 'medium';
-      const riskColor = riskLevel === 'high' ? [239, 68, 68] :
-                        riskLevel === 'medium' ? [245, 158, 11] : [34, 197, 94];
-      doc.setTextColor(riskColor[0], riskColor[1], riskColor[2]);
-      doc.text(riskLevel.toUpperCase(), 50, infoY);
-      doc.setTextColor(0, 0, 0);
+      const sentiment = responseAnalysis.sentiment || 'neutral';
 
-      yPos += 65;
+      autoTable(doc, {
+        startY: yPos,
+        head: [],
+        body: [
+          ['Intent', `${responseAnalysis.intent || 'N/A'} (${responseAnalysis.confidence || 0}%)`],
+          ['Sentiment', sentiment.charAt(0).toUpperCase() + sentiment.slice(1)],
+          [language === 'it' ? 'Livello Rischio' : 'Risk Level', riskLevel.toUpperCase()],
+        ],
+        theme: 'plain',
+        styles: {
+          fontSize: 9,
+          cellPadding: 4,
+        },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 40, textColor: colors.secondary },
+          1: { textColor: colors.text },
+        },
+        margin: { left: 14, right: 14 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
 
       // Suggested actions
       if (responseAnalysis.suggested_actions?.length > 0) {
-        doc.setFontSize(11);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(31, 41, 55);
+        doc.setTextColor(colors.secondary[0], colors.secondary[1], colors.secondary[2]);
         doc.text(language === 'it' ? 'Azioni Suggerite:' : 'Suggested Actions:', 14, yPos);
-        yPos += 8;
+        yPos += 6;
 
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
         responseAnalysis.suggested_actions.forEach((action: string, idx: number) => {
-          checkPageBreak(15);
-          doc.setFillColor(59, 130, 246);
-          doc.circle(20, yPos - 2, 2, 'F');
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(55, 65, 81);
-          doc.text(action, 26, yPos);
-          yPos += 8;
+          checkPageBreak(10);
+          doc.setFontSize(8);
+          doc.text(`${idx + 1}. ${action}`, 18, yPos);
+          yPos += 5;
         });
       }
     }
@@ -452,15 +380,13 @@ export default function Dashboard() {
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      // Footer line
-      doc.setDrawColor(229, 231, 235);
-      doc.setLineWidth(0.3);
-      doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
-      // Footer text
-      doc.setFontSize(8);
-      doc.setTextColor(156, 163, 175);
-      doc.text('PayMind - AI Payment Reminder System', 14, pageHeight - 8);
-      doc.text(`${language === 'it' ? 'Pagina' : 'Page'} ${i} / ${pageCount}`, pageWidth - 14, pageHeight - 8, { align: 'right' });
+      doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+      doc.setLineWidth(0.2);
+      doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
+      doc.setFontSize(7);
+      doc.setTextColor(colors.muted[0], colors.muted[1], colors.muted[2]);
+      doc.text('PayMind - Credit Analysis Report', 14, pageHeight - 6);
+      doc.text(`${language === 'it' ? 'Pag.' : 'Page'} ${i}/${pageCount}`, pageWidth - 14, pageHeight - 6, { align: 'right' });
     }
 
     // Save PDF
