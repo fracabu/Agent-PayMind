@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { callAI, AIProvider } from '@/lib/ai-providers';
-import { RESPONSE_HANDLER_PROMPT } from '@/lib/agents';
+import { getResponseHandlerPrompt, Language } from '@/lib/agents';
 
 export async function POST(request: NextRequest) {
   try {
-    const { invoiceId, customerMessage, provider = 'anthropic', model, apiKey } = await request.json();
+    const { invoiceId, customerMessage, provider = 'anthropic', model, apiKey, language = 'it' } = await request.json();
+    const lang = language as Language;
 
     if (!customerMessage) {
       return NextResponse.json({ error: 'Customer message is required' }, { status: 400 });
@@ -20,7 +21,16 @@ export async function POST(request: NextRequest) {
     }
 
     const invoiceContext = invoice
-      ? `
+      ? lang === 'en'
+        ? `
+Invoice context:
+- ID: ${invoice.invoiceId}
+- Customer: ${invoice.customerName}
+- Amount due: €${(invoice.amountTotal - invoice.amountPaid).toFixed(2)}
+- Due date: ${invoice.dueDate.toISOString().split('T')[0]}
+- Days overdue: ${invoice.daysOverdue || 0}
+- Status: ${invoice.status}`
+        : `
 Contesto fattura:
 - ID: ${invoice.invoiceId}
 - Cliente: ${invoice.customerName}
@@ -30,7 +40,28 @@ Contesto fattura:
 - Stato: ${invoice.status}`
       : '';
 
-    const userMessage = `Analizza la seguente risposta del cliente:
+    const userMessage = lang === 'en'
+      ? `Analyze the following customer response:
+
+"${customerMessage}"
+${invoiceContext}
+
+Provide the analysis in the following JSON format:
+{
+  "intent": "intent_type",
+  "intentConfidence": 95,
+  "sentiment": "positive|neutral|negative",
+  "extractedInfo": [
+    {"label": "label_in_english", "value": "value"}
+  ],
+  "suggestedActions": [
+    "action 1 in English",
+    "action 2 in English"
+  ],
+  "draftResponse": "draft response in English",
+  "riskLevel": "low|medium|high"
+}`
+      : `Analizza la seguente risposta del cliente:
 
 "${customerMessage}"
 ${invoiceContext}
@@ -53,7 +84,7 @@ Fornisci l'analisi nel seguente formato JSON:
 
     const response = await callAI(
       { provider: provider as AIProvider, model, apiKey },
-      RESPONSE_HANDLER_PROMPT,
+      getResponseHandlerPrompt(lang),
       userMessage
     );
 

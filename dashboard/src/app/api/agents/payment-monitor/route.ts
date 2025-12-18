@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { callAI, AIProvider } from '@/lib/ai-providers';
-import { PAYMENT_MONITOR_PROMPT } from '@/lib/agents';
+import { getPaymentMonitorPrompt, Language } from '@/lib/agents';
 
 export async function POST(request: NextRequest) {
   try {
-    const { provider = 'anthropic', model, apiKey } = await request.json();
+    const { provider = 'anthropic', model, apiKey, language = 'it' } = await request.json();
+    const lang = language as Language;
 
     // Fetch all invoices from database
     const invoices = await prisma.invoice.findMany({
@@ -16,8 +17,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No invoices found' }, { status: 400 });
     }
 
-    // Prepare invoice data for analysis
-    const invoiceData = invoices.map((inv) => ({
+    // Prepare invoice data for analysis (use English labels if language is English)
+    const invoiceData = invoices.map((inv) => lang === 'en' ? ({
+      id: inv.invoiceId,
+      customer: inv.customerName,
+      total_amount: inv.amountTotal,
+      paid_amount: inv.amountPaid,
+      amount_due: inv.amountTotal - inv.amountPaid,
+      due_date: inv.dueDate.toISOString().split('T')[0],
+      status: inv.status,
+      days_overdue: inv.daysOverdue,
+      priority: inv.priority,
+      channel: inv.preferredChannel,
+      email: inv.customerEmail,
+      phone: inv.customerPhone,
+    }) : ({
       id: inv.invoiceId,
       cliente: inv.customerName,
       importo_totale: inv.amountTotal,
@@ -33,7 +47,21 @@ export async function POST(request: NextRequest) {
     }));
 
     const today = new Date().toISOString().split('T')[0];
-    const userMessage = `Analizza le seguenti fatture. Data odierna: ${today}
+    const userMessage = lang === 'en'
+      ? `Analyze the following invoices. Today's date: ${today}
+
+Invoice data (JSON):
+${JSON.stringify(invoiceData, null, 2)}
+
+Generate a complete report with:
+1. General summary
+2. Overdue invoices (table with days overdue)
+3. Disputed invoices
+4. Priority segmentation (HIGH/MEDIUM/LOW)
+5. Financial statistics
+6. Top customers by outstanding credit
+7. Urgent recommendations`
+      : `Analizza le seguenti fatture. Data odierna: ${today}
 
 Dati fatture (JSON):
 ${JSON.stringify(invoiceData, null, 2)}
@@ -47,10 +75,10 @@ Genera un report completo con:
 6. Top clienti per credito residuo
 7. Raccomandazioni urgenti`;
 
-    // Call AI provider
+    // Call AI provider with language-aware prompt
     const response = await callAI(
       { provider: provider as AIProvider, model, apiKey },
-      PAYMENT_MONITOR_PROMPT,
+      getPaymentMonitorPrompt(lang),
       userMessage
     );
 

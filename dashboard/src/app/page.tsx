@@ -182,6 +182,7 @@ export default function Dashboard() {
           provider: aiSettings.provider,
           model: aiSettings.model,
           apiKey: aiSettings.apiKey,
+          language,
         }),
       });
 
@@ -216,6 +217,7 @@ export default function Dashboard() {
           provider: aiSettings.provider,
           model: aiSettings.model,
           apiKey: aiSettings.apiKey,
+          language,
         }),
       });
 
@@ -266,6 +268,7 @@ export default function Dashboard() {
           provider: aiSettings.provider,
           model: aiSettings.model,
           apiKey: aiSettings.apiKey,
+          language,
         }),
       });
 
@@ -309,7 +312,7 @@ export default function Dashboard() {
     } finally {
       setWorkflowRunning(false);
     }
-  }, [invoices, aiSettings, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, t, logMsg]);
+  }, [invoices, aiSettings, language, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, t, logMsg]);
 
   const handleReset = useCallback(async () => {
     try {

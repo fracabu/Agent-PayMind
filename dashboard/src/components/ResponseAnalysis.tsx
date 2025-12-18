@@ -25,6 +25,33 @@ interface ResponseAnalysisProps {
 export default function ResponseAnalysis({ analysis, isVisible, language }: ResponseAnalysisProps) {
   const { t } = useTranslation(language);
 
+  // Map AI labels (Italian and English) to translation keys
+  const extractedInfoTranslations: Record<string, string> = {
+    // Italian labels
+    'numero_rate': t('extractedNumeroRate'),
+    'frequenza_rate': t('extractedFrequenzaRate'),
+    'motivo': t('extractedMotivo'),
+    'data_pagamento': t('extractedDataPagamento'),
+    'importo': t('extractedImporto'),
+    'metodo_pagamento': t('extractedMetodoPagamento'),
+    'riferimento': t('extractedRiferimento'),
+    'note': t('extractedNote'),
+    // English labels
+    'installment_count': t('extractedNumeroRate'),
+    'installment_frequency': t('extractedFrequenzaRate'),
+    'reason': t('extractedMotivo'),
+    'payment_date': t('extractedDataPagamento'),
+    'amount': t('extractedImporto'),
+    'payment_method': t('extractedMetodoPagamento'),
+    'reference': t('extractedRiferimento'),
+    'notes': t('extractedNote'),
+  };
+
+  const translateLabel = (label: string): string => {
+    const normalized = label.toLowerCase().replace(/\s+/g, '_');
+    return extractedInfoTranslations[normalized] || label;
+  };
+
   const intentLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
     payment_confirmed: { label: t('paymentConfirmed'), icon: <CheckCircle className="w-4 h-4" />, color: 'text-green-500' },
     request_delay: { label: t('requestDelay'), icon: <Clock className="w-4 h-4" />, color: 'text-orange-500' },
@@ -115,7 +142,7 @@ export default function ResponseAnalysis({ analysis, isVisible, language }: Resp
             <div className="space-y-1">
               {analysis.extractedInfo.map((info, idx) => (
                 <div key={idx} className="flex items-center justify-between bg-gray-50 dark:bg-gray-900/50 rounded p-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{info.label}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{translateLabel(info.label)}</span>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">{info.value}</span>
                 </div>
               ))}

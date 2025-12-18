@@ -177,6 +177,16 @@ export const translations = {
     exportCurrentResults: 'Esporta Risultati',
     saveToHistory: 'Salva nello Storico',
 
+    // Extracted info labels (from AI response)
+    extractedNumeroRate: 'Numero rate',
+    extractedFrequenzaRate: 'Frequenza rate',
+    extractedMotivo: 'Motivo',
+    extractedDataPagamento: 'Data pagamento',
+    extractedImporto: 'Importo',
+    extractedMetodoPagamento: 'Metodo pagamento',
+    extractedRiferimento: 'Riferimento',
+    extractedNote: 'Note',
+
     // Log messages
     logLoadingInvoices: 'Caricamento {count} fatture...',
     logInvoicesLoaded: 'Caricate {count} fatture nel database',
@@ -378,6 +388,16 @@ export const translations = {
     loading: 'Loading',
     exportCurrentResults: 'Export Results',
     saveToHistory: 'Save to History',
+
+    // Extracted info labels (from AI response)
+    extractedNumeroRate: 'Number of installments',
+    extractedFrequenzaRate: 'Installment frequency',
+    extractedMotivo: 'Reason',
+    extractedDataPagamento: 'Payment date',
+    extractedImporto: 'Amount',
+    extractedMetodoPagamento: 'Payment method',
+    extractedRiferimento: 'Reference',
+    extractedNote: 'Notes',
 
     // Log messages
     logLoadingInvoices: 'Loading {count} invoices...',

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { callAI, AIProvider } from '@/lib/ai-providers';
-import { REMINDER_GENERATOR_PROMPT } from '@/lib/agents';
+import { getReminderGeneratorPrompt, Language } from '@/lib/agents';
 
 export async function POST(request: NextRequest) {
   try {
-    const { invoiceIds, provider = 'anthropic', model, apiKey } = await request.json();
+    const { invoiceIds, provider = 'anthropic', model, apiKey, language = 'it' } = await request.json();
+    const lang = language as Language;
 
     // Fetch specified invoices or all overdue/disputed
     let invoices;
@@ -35,7 +36,26 @@ export async function POST(request: NextRequest) {
     for (const inv of invoices) {
       const amountDue = inv.amountTotal - inv.amountPaid;
 
-      const userMessage = `Genera un messaggio di sollecito pagamento per:
+      const userMessage = lang === 'en'
+        ? `Generate a payment reminder message for:
+
+Invoice: ${inv.invoiceId}
+Customer: ${inv.customerName}
+Amount due: €${amountDue.toFixed(2)}
+Total invoice amount: €${inv.amountTotal.toFixed(2)}
+Amount already paid: €${inv.amountPaid.toFixed(2)}
+Due date: ${inv.dueDate.toISOString().split('T')[0]}
+Days overdue: ${inv.daysOverdue || 0}
+Priority: ${inv.priority === 'ALTA' ? 'HIGH' : inv.priority === 'MEDIA' ? 'MEDIUM' : 'LOW'}
+Channel: ${inv.preferredChannel.toUpperCase()}
+Customer email: ${inv.customerEmail}
+Customer phone: ${inv.customerPhone}
+Status: ${inv.status === 'disputed' ? 'DISPUTED' : 'OVERDUE'}
+
+${inv.preferredChannel === 'email' ? 'Generate email subject + complete message body.' : ''}
+${inv.preferredChannel === 'sms' ? 'Generate short SMS (max 160 characters).' : ''}
+${inv.preferredChannel === 'whatsapp' ? 'Generate WhatsApp message with friendly tone.' : ''}`
+        : `Genera un messaggio di sollecito pagamento per:
 
 Fattura: ${inv.invoiceId}
 Cliente: ${inv.customerName}
@@ -56,19 +76,19 @@ ${inv.preferredChannel === 'whatsapp' ? 'Genera messaggio WhatsApp con tono amic
 
       const response = await callAI(
         { provider: provider as AIProvider, model, apiKey },
-        REMINDER_GENERATOR_PROMPT,
+        getReminderGeneratorPrompt(lang),
         userMessage
       );
 
-      // Extract subject if email (look for "Oggetto:" pattern)
+      // Extract subject if email (look for "Oggetto:" or "Subject:" pattern)
       let subject: string | undefined;
       let content = response.content;
 
       if (inv.preferredChannel === 'email') {
-        const subjectMatch = response.content.match(/[Oo]ggetto:\s*(.+?)(?:\n|$)/);
+        const subjectMatch = response.content.match(/(?:[Oo]ggetto|[Ss]ubject):\s*(.+?)(?:\n|$)/);
         if (subjectMatch) {
           subject = subjectMatch[1].trim();
-          content = response.content.replace(/[Oo]ggetto:\s*.+?\n/, '').trim();
+          content = response.content.replace(/(?:[Oo]ggetto|[Ss]ubject):\s*.+?\n/, '').trim();
         }
       }
 
