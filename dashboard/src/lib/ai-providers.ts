@@ -69,17 +69,27 @@ async function callOpenAI(
     baseURL,
   });
 
+  // Use higher token limit for OpenRouter to handle large invoice datasets
+  const maxTokens = baseURL ? 16000 : 4096;
+
   const completion = await client.chat.completions.create({
     model,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage },
     ],
-    max_tokens: 4096,
+    max_tokens: maxTokens,
   });
 
+  const content = completion.choices[0]?.message?.content || '';
+
+  // Log warning if content is empty
+  if (!content) {
+    console.warn('AI response returned empty content for model:', model);
+  }
+
   return {
-    content: completion.choices[0]?.message?.content || '',
+    content,
     model,
     provider: baseURL ? 'openrouter' : 'openai',
     tokensUsed: completion.usage?.total_tokens,

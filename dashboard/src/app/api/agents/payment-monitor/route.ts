@@ -82,6 +82,15 @@ Genera un report completo con:
       userMessage
     );
 
+    // Check if AI returned empty content
+    if (!response.content || response.content.trim().length === 0) {
+      console.error('AI returned empty analysis content');
+      return NextResponse.json(
+        { error: lang === 'en' ? 'AI returned empty response. Try a different model or provider.' : 'L\'AI ha restituito una risposta vuota. Prova un modello o provider diverso.' },
+        { status: 500 }
+      );
+    }
+
     // Calculate summary stats
     const overdueInvoices = invoices.filter((inv) => inv.status === 'open' && (inv.daysOverdue || 0) > 0);
     const disputedInvoices = invoices.filter((inv) => inv.status === 'disputed');
