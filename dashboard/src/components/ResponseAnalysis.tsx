@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageCircle, TrendingUp, AlertCircle, CheckCircle, Clock, FileText } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 export interface ResponseAnalysisData {
   invoiceId: string;
@@ -18,29 +19,32 @@ export interface ResponseAnalysisData {
 interface ResponseAnalysisProps {
   analysis: ResponseAnalysisData | null;
   isVisible: boolean;
+  language: Language;
 }
 
-const intentLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  payment_confirmed: { label: 'Pagamento Confermato', icon: <CheckCircle className="w-4 h-4" />, color: 'text-green-500' },
-  request_delay: { label: 'Richiesta Dilazione', icon: <Clock className="w-4 h-4" />, color: 'text-orange-500' },
-  dispute: { label: 'Contestazione', icon: <AlertCircle className="w-4 h-4" />, color: 'text-red-500' },
-  request_info: { label: 'Richiesta Info', icon: <FileText className="w-4 h-4" />, color: 'text-blue-500' },
-  payment_promise: { label: 'Promessa Pagamento', icon: <TrendingUp className="w-4 h-4" />, color: 'text-purple-500' },
-};
+export default function ResponseAnalysis({ analysis, isVisible, language }: ResponseAnalysisProps) {
+  const { t } = useTranslation(language);
 
-const sentimentConfig = {
-  positive: { label: 'Positivo', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  neutral: { label: 'Neutro', color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' },
-  negative: { label: 'Negativo', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
-};
+  const intentLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+    payment_confirmed: { label: t('paymentConfirmed'), icon: <CheckCircle className="w-4 h-4" />, color: 'text-green-500' },
+    request_delay: { label: t('requestDelay'), icon: <Clock className="w-4 h-4" />, color: 'text-orange-500' },
+    dispute: { label: t('dispute'), icon: <AlertCircle className="w-4 h-4" />, color: 'text-red-500' },
+    request_info: { label: t('requestInfo'), icon: <FileText className="w-4 h-4" />, color: 'text-blue-500' },
+    payment_promise: { label: t('paymentPromise'), icon: <TrendingUp className="w-4 h-4" />, color: 'text-purple-500' },
+  };
 
-const riskConfig = {
-  low: { label: 'BASSO', color: 'bg-green-500' },
-  medium: { label: 'MEDIO', color: 'bg-orange-500' },
-  high: { label: 'ALTO', color: 'bg-red-500' },
-};
+  const sentimentConfig = {
+    positive: { label: t('positive'), color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+    neutral: { label: t('neutral'), color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' },
+    negative: { label: t('negative'), color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  };
 
-export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalysisProps) {
+  const riskConfig = {
+    low: { label: t('riskLow'), color: 'bg-green-500' },
+    medium: { label: t('riskMedium'), color: 'bg-orange-500' },
+    high: { label: t('riskHigh'), color: 'bg-red-500' },
+  };
+
   if (!isVisible || !analysis) return null;
 
   const intent = intentLabels[analysis.intent] || { label: analysis.intent, icon: <MessageCircle className="w-4 h-4" />, color: 'text-gray-500' };
@@ -52,7 +56,7 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/20">
         <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <MessageCircle className="w-5 h-5 text-purple-500" />
-          Analisi Risposta Cliente
+          {t('customerResponseAnalysis')}
           <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">
             response-handler-agent
           </span>
@@ -67,22 +71,22 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
             <p className="text-sm text-gray-500 dark:text-gray-400">{analysis.invoiceId}</p>
           </div>
           <span className={`px-2 py-1 rounded text-xs font-bold text-white ${risk.color}`}>
-            Rischio {risk.label}
+            {t('riskLabel')} {risk.label}
           </span>
         </div>
 
         {/* Original Message */}
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Messaggio Originale:</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('originalMessageLabel')}</p>
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 border-l-4 border-gray-300 dark:border-gray-600">
-            <p className="text-sm text-gray-700 dark:text-gray-300 italic">"{analysis.originalMessage}"</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 italic">&quot;{analysis.originalMessage}&quot;</p>
           </div>
         </div>
 
         {/* Intent & Sentiment */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Intent Identificato</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('identifiedIntent')}</p>
             <div className={`flex items-center gap-2 ${intent.color}`}>
               {intent.icon}
               <span className="font-semibold">{intent.label}</span>
@@ -93,11 +97,11 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
                 style={{ width: `${analysis.intentConfidence}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">{analysis.intentConfidence}% confidence</p>
+            <p className="text-xs text-gray-500 mt-1">{analysis.intentConfidence}% {t('confidence')}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Sentiment</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('sentiment')}</p>
             <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${sentiment.color}`}>
               {sentiment.label}
             </span>
@@ -107,7 +111,7 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
         {/* Extracted Info */}
         {analysis.extractedInfo.length > 0 && (
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Informazioni Estratte:</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('extractedInfoLabel')}</p>
             <div className="space-y-1">
               {analysis.extractedInfo.map((info, idx) => (
                 <div key={idx} className="flex items-center justify-between bg-gray-50 dark:bg-gray-900/50 rounded p-2">
@@ -121,7 +125,7 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
 
         {/* Suggested Actions */}
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Azioni Suggerite:</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('suggestedActionsLabel')}</p>
           <div className="space-y-2">
             {analysis.suggestedActions.map((action, idx) => (
               <div key={idx} className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 rounded p-2">
@@ -136,7 +140,7 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
 
         {/* Draft Response */}
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Bozza Risposta Suggerita:</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t('draftResponseLabel')}</p>
           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
             <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{analysis.draftResponse}</p>
           </div>

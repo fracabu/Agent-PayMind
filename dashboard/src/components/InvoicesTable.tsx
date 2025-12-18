@@ -2,11 +2,13 @@
 
 import { Invoice } from '@/types';
 import { Mail, MessageSquare, Phone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 interface InvoicesTableProps {
   invoices: Invoice[];
   onSelectInvoice?: (invoice: Invoice) => void;
   selectedInvoiceId?: string;
+  language: Language;
 }
 
 const channelIcons = {
@@ -15,44 +17,46 @@ const channelIcons = {
   sms: <Phone className="w-4 h-4" />,
 };
 
-const statusConfig = {
-  open: {
-    icon: <AlertTriangle className="w-4 h-4" />,
-    bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    label: 'Aperta',
-  },
-  paid: {
-    icon: <CheckCircle className="w-4 h-4" />,
-    bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    label: 'Pagata',
-  },
-  disputed: {
-    icon: <AlertCircle className="w-4 h-4" />,
-    bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    label: 'Contestata',
-  },
-};
-
 const priorityConfig = {
   ALTA: 'bg-red-500 text-white',
   MEDIA: 'bg-orange-500 text-white',
   BASSA: 'bg-gray-400 text-white',
 };
 
-export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoiceId }: InvoicesTableProps) {
+export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoiceId, language }: InvoicesTableProps) {
+  const { t } = useTranslation(language);
+
+  const statusConfig = {
+    open: {
+      icon: <AlertTriangle className="w-4 h-4" />,
+      bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      label: t('statusOpen'),
+    },
+    paid: {
+      icon: <CheckCircle className="w-4 h-4" />,
+      bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+      label: t('statusPaid'),
+    },
+    disputed: {
+      icon: <AlertCircle className="w-4 h-4" />,
+      bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      label: t('statusDisputed'),
+    },
+  };
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('it-IT');
+    return new Date(dateStr).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
   };
 
   if (invoices.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
         <p className="text-gray-500 dark:text-gray-400">
-          Nessuna fattura caricata. Carica un file CSV per iniziare.
+          {t('noInvoices')}
         </p>
       </div>
     );
@@ -65,25 +69,25 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
           <thead className="bg-gray-50 dark:bg-gray-900/50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                ID
+                {t('id')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Cliente
+                {t('customer')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Importo
+                {t('amount')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Scadenza
+                {t('dueDate')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Stato
+                {t('status')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Priorità
+                {t('priority')}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Canale
+                {t('channel')}
               </th>
             </tr>
           </thead>
@@ -123,7 +127,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
                       </p>
                       {invoice.amount_paid > 0 && (
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          di {formatCurrency(invoice.amount_total)}
+                          {t('of')} {formatCurrency(invoice.amount_total)}
                         </p>
                       )}
                     </div>
@@ -135,7 +139,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
                       </p>
                       {invoice.days_overdue && invoice.days_overdue > 0 && (
                         <p className="text-xs text-red-500">
-                          -{invoice.days_overdue} giorni
+                          -{invoice.days_overdue} {t('days')}
                         </p>
                       )}
                     </div>

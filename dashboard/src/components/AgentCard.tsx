@@ -2,45 +2,61 @@
 
 import { Agent } from '@/types';
 import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { useTranslation, Language, TranslationKey } from '@/lib/i18n';
 
 interface AgentCardProps {
   agent: Agent;
   isActive?: boolean;
   onClick?: () => void;
+  language: Language;
 }
 
-const statusConfig = {
-  idle: {
-    bg: 'bg-gray-100 dark:bg-gray-800',
-    border: 'border-gray-200 dark:border-gray-700',
-    badge: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
-    icon: <Clock className="w-4 h-4" />,
-    label: 'In attesa',
-  },
-  running: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-300 dark:border-blue-700',
-    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-    icon: <Loader2 className="w-4 h-4 animate-spin" />,
-    label: 'In esecuzione',
-  },
-  completed: {
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    border: 'border-green-300 dark:border-green-700',
-    badge: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-    icon: <CheckCircle2 className="w-4 h-4" />,
-    label: 'Completato',
-  },
-  error: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-300 dark:border-red-700',
-    badge: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-    icon: <XCircle className="w-4 h-4" />,
-    label: 'Errore',
-  },
+// Map agent IDs to translation keys
+const agentTranslationKeys: Record<string, { name: string; desc: string }> = {
+  'payment-monitor': { name: 'paymentMonitor', desc: 'paymentMonitorDesc' },
+  'reminder-generator': { name: 'reminderGenerator', desc: 'reminderGeneratorDesc' },
+  'response-handler': { name: 'responseHandler', desc: 'responseHandlerDesc' },
 };
 
-export default function AgentCard({ agent, isActive, onClick }: AgentCardProps) {
+export default function AgentCard({ agent, isActive, onClick, language }: AgentCardProps) {
+  const { t } = useTranslation(language);
+
+  // Get translated name and description based on agent ID
+  const translationKeys = agentTranslationKeys[agent.id];
+  const agentName = translationKeys ? t(translationKeys.name as TranslationKey) : agent.name;
+  const agentDescription = translationKeys ? t(translationKeys.desc as TranslationKey) : agent.description;
+
+  const statusConfig = {
+    idle: {
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      border: 'border-gray-200 dark:border-gray-700',
+      badge: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
+      icon: <Clock className="w-4 h-4" />,
+      label: t('statusIdle'),
+    },
+    running: {
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      border: 'border-blue-300 dark:border-blue-700',
+      badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+      icon: <Loader2 className="w-4 h-4 animate-spin" />,
+      label: t('statusRunning'),
+    },
+    completed: {
+      bg: 'bg-green-50 dark:bg-green-900/20',
+      border: 'border-green-300 dark:border-green-700',
+      badge: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+      icon: <CheckCircle2 className="w-4 h-4" />,
+      label: t('statusCompleted'),
+    },
+    error: {
+      bg: 'bg-red-50 dark:bg-red-900/20',
+      border: 'border-red-300 dark:border-red-700',
+      badge: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+      icon: <XCircle className="w-4 h-4" />,
+      label: t('statusError'),
+    },
+  };
+
   const config = statusConfig[agent.status];
 
   return (
@@ -64,12 +80,12 @@ export default function AgentCard({ agent, isActive, onClick }: AgentCardProps) 
 
       {/* Name */}
       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-        {agent.name}
+        {agentName}
       </h3>
 
       {/* Description */}
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-        {agent.description}
+        {agentDescription}
       </p>
 
       {/* Progress Bar (when running) */}
@@ -88,7 +104,7 @@ export default function AgentCard({ agent, isActive, onClick }: AgentCardProps) 
       {/* Duration (when completed) */}
       {agent.status === 'completed' && agent.duration && (
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          Completato in {(agent.duration / 1000).toFixed(1)}s
+          {t('completedIn')} {(agent.duration / 1000).toFixed(1)}s
         </p>
       )}
     </div>

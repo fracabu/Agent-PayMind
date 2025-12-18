@@ -45,7 +45,8 @@
 | 🎨 **Dashboard Moderna** | Interfaccia Next.js per visualizzare workflow in tempo reale |
 | 🔌 **Multi-Provider AI** | Supporta Anthropic, OpenAI, OpenRouter e Google Gemini |
 | 🗄️ **Database SQLite** | Persistenza dati con Prisma ORM |
-| ⚙️ **Configurabile** | Selezione provider e modello AI direttamente dalla dashboard |
+| 🌙 **Dark/Light Mode** | Toggle tra tema scuro e chiaro |
+| 🌍 **Bilingue** | Supporto completo Italiano e Inglese |
 
 ### 🤖 Gli Agenti
 
@@ -132,11 +133,34 @@ Agent-PayMind/
 └── README.md
 ```
 
+### 🛠️ Tech Stack
+
+| Tecnologia | Utilizzo |
+|------------|----------|
+| **Multi-Provider AI** | Claude, GPT, Gemini via OpenRouter |
+| **Next.js 16** | Dashboard Framework (App Router) |
+| **TypeScript 5** | Type Safety |
+| **Tailwind CSS 4** | Styling + Dark Mode (class-based) |
+| **Zustand** | State Management + localStorage persistence |
+| **Prisma + SQLite** | Database ORM |
+| **Lucide React** | Icone |
+
 ### 📋 Formato CSV
 
 ```csv
 invoice_id,customer_name,amount_total,amount_paid,due_date,status,preferred_channel,customer_email,customer_phone
 FAT-2025-001,ACME SpA,2450.00,0.00,2025-09-15,open,email,contabilita@acme.it,+393401234567
+```
+
+### ⚙️ Variabili d'Ambiente
+
+Crea `dashboard/.env`:
+```env
+DATABASE_URL="file:./dev.db"
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...           # Opzionale
+OPENROUTER_API_KEY=...          # Opzionale
+GEMINI_API_KEY=...              # Opzionale
 ```
 
 ---
@@ -215,11 +239,11 @@ claude "response-handler-agent: analyze this response: [text]"
 | Technology | Purpose |
 |------------|---------|
 | **Multi-Provider AI** | Claude, GPT, Gemini via OpenRouter |
-| **Next.js 16** | Dashboard Framework |
-| **TypeScript** | Type Safety |
-| **Tailwind CSS** | Styling + Dark Mode |
-| **Zustand** | State Management |
-| **Prisma + SQLite** | Database |
+| **Next.js 16** | Dashboard Framework (App Router) |
+| **TypeScript 5** | Type Safety |
+| **Tailwind CSS 4** | Styling + Dark Mode (class-based) |
+| **Zustand** | State Management + localStorage persistence |
+| **Prisma + SQLite** | Database ORM |
 | **Lucide React** | Icons |
 
 ### 📊 Priority Levels
@@ -230,12 +254,23 @@ claude "response-handler-agent: analyze this response: [text]"
 | 🟠 **MEDIA** | 60-90 days overdue | Follow-up within 48h |
 | ⚪ **BASSA** | <60 days overdue | Standard reminder |
 
+### ⚙️ Environment Variables
+
+Create `dashboard/.env`:
+```env
+DATABASE_URL="file:./dev.db"
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...           # Optional
+OPENROUTER_API_KEY=...          # Optional
+GEMINI_API_KEY=...              # Optional
+```
+
 ### 🔒 Security
 
-- ✅ `.env` files protected via `.gitignore`
-- ✅ No API keys in repository
-- ✅ Generated messages excluded from git
-- ✅ CSV data files not committed
+- `.env` files protected via `.gitignore`
+- No API keys in repository
+- Generated messages excluded from git
+- CSV data files not committed
 
 ---
 

@@ -2,10 +2,12 @@
 
 import { WorkflowStep } from '@/types';
 import { Check, Loader2, Circle, AlertCircle } from 'lucide-react';
+import { useTranslation, Language, TranslationKey } from '@/lib/i18n';
 
 interface WorkflowTimelineProps {
   steps: WorkflowStep[];
   currentStep: number;
+  language: Language;
 }
 
 const stepIcons = {
@@ -15,7 +17,18 @@ const stepIcons = {
   error: <AlertCircle className="w-5 h-5 text-white" />,
 };
 
-export default function WorkflowTimeline({ steps, currentStep }: WorkflowTimelineProps) {
+// Map step IDs to translation keys
+const stepTranslationKeys: Record<number, TranslationKey> = {
+  1: 'loadCsv',
+  2: 'analyzeInvoices',
+  3: 'generateReminders',
+  4: 'waitResponses',
+  5: 'analyzeResponses',
+};
+
+export default function WorkflowTimeline({ steps, currentStep, language }: WorkflowTimelineProps) {
+  const { t } = useTranslation(language);
+
   const formatDuration = (start?: Date, end?: Date) => {
     if (!start || !end) return null;
     const ms = end.getTime() - start.getTime();
@@ -25,7 +38,7 @@ export default function WorkflowTimeline({ steps, currentStep }: WorkflowTimelin
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
-        Workflow Pipeline
+        {t('workflowPipeline')}
       </h2>
 
       <div className="relative">
@@ -64,7 +77,7 @@ export default function WorkflowTimeline({ steps, currentStep }: WorkflowTimelin
                     'text-gray-500 dark:text-gray-400'
                   }`}
                 >
-                  {step.name}
+                  {stepTranslationKeys[step.id] ? t(stepTranslationKeys[step.id]) : step.name}
                 </h3>
                 {step.status === 'completed' && step.startTime && step.endTime && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -73,7 +86,7 @@ export default function WorkflowTimeline({ steps, currentStep }: WorkflowTimelin
                 )}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {step.agent === 'system' ? 'Sistema' : step.agent}
+                {step.agent === 'system' ? t('system') : step.agent}
               </p>
             </div>
           </div>

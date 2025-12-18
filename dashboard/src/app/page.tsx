@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
+import { useTranslation } from '@/lib/i18n';
 import Header from '@/components/Header';
 import AgentCard from '@/components/AgentCard';
 import WorkflowTimeline from '@/components/WorkflowTimeline';
@@ -58,6 +59,7 @@ export default function Dashboard() {
 
   // Apply theme to document
   useEffect(() => {
+    console.log('Theme changed to:', theme);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -68,6 +70,8 @@ export default function Dashboard() {
   const handleToggleLanguage = useCallback(() => {
     setLanguage(language === 'it' ? 'en' : 'it');
   }, [language, setLanguage]);
+
+  const { t } = useTranslation(language);
 
   const parseCSV = (text: string): Invoice[] => {
     const lines = text.trim().split('\n');
@@ -334,18 +338,19 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="mb-8">
-          <StatsCards result={analysisResult} />
+          <StatsCards result={analysisResult} language={language} />
         </div>
 
         {/* Agents Grid */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Agenti AI</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('aiAgents')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {agents.map((agent) => (
               <AgentCard
                 key={agent.id}
                 agent={agent}
                 isActive={agent.status === 'running'}
+                language={language}
               />
             ))}
           </div>
@@ -355,17 +360,18 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Left Column - Workflow & Logs */}
           <div className="space-y-6">
-            <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} />
-            <LogsPanel logs={logs} onClear={clearLogs} />
+            <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
+            <LogsPanel logs={logs} onClear={clearLogs} language={language} />
           </div>
 
           {/* Right Column - Invoices Table */}
           <div className="lg:col-span-2">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Fatture</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('invoicesTitle')}</h2>
             <InvoicesTable
               invoices={invoices}
               onSelectInvoice={setSelectedInvoice}
               selectedInvoiceId={selectedInvoice?.invoice_id}
+              language={language}
             />
           </div>
         </div>
@@ -373,20 +379,23 @@ export default function Dashboard() {
         {/* Agent Outputs Section */}
         {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
           <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Output Agenti (AI Reale)</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('agentOutputs')}</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <AnalysisReport
                 result={analysisResult}
                 invoices={invoices}
                 isVisible={showAnalysisReport}
+                language={language}
               />
               <GeneratedMessages
                 messages={generatedMessages}
                 isVisible={showGeneratedMessages}
+                language={language}
               />
               <ResponseAnalysis
                 analysis={responseAnalysis}
                 isVisible={showResponseAnalysis}
+                language={language}
               />
             </div>
 
@@ -394,7 +403,7 @@ export default function Dashboard() {
             {analysisReportContent && (
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                  Report Completo AI
+                  {t('fullAiReport')}
                 </h3>
                 <div className="prose dark:prose-invert max-w-none text-sm">
                   <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">
@@ -411,6 +420,7 @@ export default function Dashboard() {
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onFileSelect={handleFileSelect}
+        language={language}
       />
 
       <SettingsModal
@@ -418,6 +428,7 @@ export default function Dashboard() {
         onClose={() => setIsSettingsOpen(false)}
         onSave={handleSaveSettings}
         currentSettings={aiSettings}
+        language={language}
       />
     </div>
   );

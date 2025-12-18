@@ -2,10 +2,12 @@
 
 import { LogEntry } from '@/types';
 import { Info, CheckCircle, AlertTriangle, XCircle, Trash2 } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 interface LogsPanelProps {
   logs: LogEntry[];
   onClear?: () => void;
+  language: Language;
 }
 
 const typeConfig = {
@@ -31,9 +33,11 @@ const typeConfig = {
   },
 };
 
-export default function LogsPanel({ logs, onClear }: LogsPanelProps) {
+export default function LogsPanel({ logs, onClear, language }: LogsPanelProps) {
+  const { t } = useTranslation(language);
+
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return date.toLocaleTimeString(language === 'it' ? 'it-IT' : 'en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
 
   return (
@@ -44,7 +48,7 @@ export default function LogsPanel({ logs, onClear }: LogsPanelProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
-          Live Logs
+          {t('liveLogs')}
         </h2>
         {logs.length > 0 && (
           <button
@@ -59,7 +63,7 @@ export default function LogsPanel({ logs, onClear }: LogsPanelProps) {
       <div className="h-64 overflow-y-auto">
         {logs.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-400">
-            <p className="text-sm">I log appariranno qui durante l&apos;esecuzione</p>
+            <p className="text-sm">{t('logsWillAppear')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-700">

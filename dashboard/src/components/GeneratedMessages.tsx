@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Mail, MessageSquare, Phone, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 export interface GeneratedMessage {
   id: string;
@@ -18,6 +19,7 @@ export interface GeneratedMessage {
 interface GeneratedMessagesProps {
   messages: GeneratedMessage[];
   isVisible: boolean;
+  language: Language;
 }
 
 const channelConfig = {
@@ -38,7 +40,8 @@ const channelConfig = {
   },
 };
 
-export default function GeneratedMessages({ messages, isVisible }: GeneratedMessagesProps) {
+export default function GeneratedMessages({ messages, isVisible, language }: GeneratedMessagesProps) {
+  const { t } = useTranslation(language);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -51,7 +54,7 @@ export default function GeneratedMessages({ messages, isVisible }: GeneratedMess
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   return (
@@ -59,12 +62,12 @@ export default function GeneratedMessages({ messages, isVisible }: GeneratedMess
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
         <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <Mail className="w-5 h-5 text-green-500" />
-          Messaggi Generati
+          {t('messagesGenerated')}
           <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">
             reminder-generator-agent
           </span>
           <span className="ml-auto text-sm font-normal bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
-            {messages.length} messaggi
+            {messages.length} {t('messagesCount')}
           </span>
         </h2>
       </div>
@@ -91,7 +94,7 @@ export default function GeneratedMessages({ messages, isVisible }: GeneratedMess
                       {msg.customerName}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {msg.invoiceId} • {formatCurrency(msg.amount)} • {msg.daysOverdue}gg ritardo
+                      {msg.invoiceId} • {formatCurrency(msg.amount)} • {msg.daysOverdue} {t('delayDays')}
                     </p>
                   </div>
                 </div>
@@ -116,7 +119,7 @@ export default function GeneratedMessages({ messages, isVisible }: GeneratedMess
                 <div className="mt-3 space-y-2">
                   {msg.subject && (
                     <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Oggetto:</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('subject')}</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{msg.subject}</p>
                     </div>
                   )}

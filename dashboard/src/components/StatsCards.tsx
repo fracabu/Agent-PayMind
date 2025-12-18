@@ -2,40 +2,44 @@
 
 import { AnalysisResult } from '@/types';
 import { FileText, AlertTriangle, Euro, TrendingUp } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 interface StatsCardsProps {
   result: AnalysisResult | null;
+  language: Language;
 }
 
-export default function StatsCards({ result }: StatsCardsProps) {
+export default function StatsCards({ result, language }: StatsCardsProps) {
+  const { t } = useTranslation(language);
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(amount);
+    return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const stats = [
     {
-      label: 'Totale Fatture',
+      label: t('totalInvoices'),
       value: result?.totalInvoices ?? '-',
       icon: <FileText className="w-6 h-6" />,
       color: 'text-blue-500',
       bg: 'bg-blue-50 dark:bg-blue-900/20',
     },
     {
-      label: 'Fatture Scadute',
+      label: t('overdueInvoices'),
       value: result?.overdueInvoices ?? '-',
       icon: <AlertTriangle className="w-6 h-6" />,
       color: 'text-red-500',
       bg: 'bg-red-50 dark:bg-red-900/20',
     },
     {
-      label: 'Crediti Totali',
+      label: t('totalCredits'),
       value: result ? formatCurrency(result.totalCredits) : '-',
       icon: <Euro className="w-6 h-6" />,
       color: 'text-green-500',
       bg: 'bg-green-50 dark:bg-green-900/20',
     },
     {
-      label: 'Importo Scaduto',
+      label: t('overdueAmount'),
       value: result ? formatCurrency(result.overdueAmount) : '-',
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'text-orange-500',

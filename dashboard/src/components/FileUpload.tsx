@@ -2,14 +2,17 @@
 
 import { useCallback, useState } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
+import { useTranslation, Language } from '@/lib/i18n';
 
 interface FileUploadProps {
   isOpen: boolean;
   onClose: () => void;
   onFileSelect: (file: File) => void;
+  language: Language;
 }
 
-export default function FileUpload({ isOpen, onClose, onFileSelect }: FileUploadProps) {
+export default function FileUpload({ isOpen, onClose, onFileSelect, language }: FileUploadProps) {
+  const { t } = useTranslation(language);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -53,7 +56,7 @@ export default function FileUpload({ isOpen, onClose, onFileSelect }: FileUpload
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Carica File CSV</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('uploadCsvFile')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -83,10 +86,10 @@ export default function FileUpload({ isOpen, onClose, onFileSelect }: FileUpload
             <div className="flex flex-col items-center gap-2">
               <Upload className="w-12 h-12 text-gray-400" />
               <p className="text-gray-600 dark:text-gray-400">
-                Trascina qui il file CSV o
+                {t('dropCsv')}
               </p>
               <label className="cursor-pointer text-blue-500 hover:text-blue-600">
-                sfoglia
+                {t('browse')}
                 <input
                   type="file"
                   accept=".csv"
@@ -103,14 +106,14 @@ export default function FileUpload({ isOpen, onClose, onFileSelect }: FileUpload
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            Annulla
+            {t('cancel')}
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedFile}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Carica
+            {t('upload')}
           </button>
         </div>
       </div>
