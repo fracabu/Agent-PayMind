@@ -1,11 +1,12 @@
 'use client';
 
-import { Upload, Play, RotateCcw, Settings, Database, Sun, Moon, Globe } from 'lucide-react';
+import { Upload, Play, RotateCcw, Settings, Database, Sun, Moon, Globe, Square } from 'lucide-react';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface HeaderProps {
   onUpload: () => void;
   onRunWorkflow: () => void;
+  onStopWorkflow: () => void;
   onReset: () => void;
   onSettings: () => void;
   isRunning: boolean;
@@ -28,6 +29,7 @@ const providerIcons: Record<string, string> = {
 export default function Header({
   onUpload,
   onRunWorkflow,
+  onStopWorkflow,
   onReset,
   onSettings,
   isRunning,
@@ -46,11 +48,11 @@ export default function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">💰</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl">💰</span>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('appDescription')}</p>
+              <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden xs:block">{t('appDescription')}</p>
             </div>
           </div>
 
@@ -99,62 +101,63 @@ export default function Header({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Mobile toggles */}
             <button
               onClick={onToggleLanguage}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title={t('language')}
             >
-              <Globe className="w-5 h-5" />
+              <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
               onClick={onToggleTheme}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title={t('theme')}
             >
-              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+              {theme === 'light' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />}
             </button>
 
             <button
               onClick={onSettings}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
               onClick={onUpload}
               disabled={isRunning}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('uploadCsv')}</span>
             </button>
 
-            <button
-              onClick={onRunWorkflow}
-              disabled={isRunning || !hasInvoices}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isRunning ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span className="hidden sm:inline">{t('running')}</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('runWorkflow')}</span>
-                </>
-              )}
-            </button>
+            {isRunning ? (
+              <button
+                onClick={onStopWorkflow}
+                className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Square className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{t('stopWorkflow')}</span>
+              </button>
+            ) : (
+              <button
+                onClick={onRunWorkflow}
+                disabled={!hasInvoices}
+                className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{t('runWorkflow')}</span>
+              </button>
+            )}
 
             <button
               onClick={onReset}
               disabled={isRunning}
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title={t('reset')}
             >
               <RotateCcw className="w-4 h-4" />

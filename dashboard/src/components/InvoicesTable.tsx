@@ -64,7 +64,56 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile Card View */}
+      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        {invoices.map((invoice) => {
+          const status = statusConfig[invoice.status];
+          const amountDue = invoice.amount_total - invoice.amount_paid;
+
+          return (
+            <div
+              key={invoice.invoice_id}
+              onClick={() => onSelectInvoice?.(invoice)}
+              className={`p-4 cursor-pointer transition-colors ${
+                selectedInvoiceId === invoice.invoice_id
+                  ? 'bg-blue-50 dark:bg-blue-900/20'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{invoice.customer_name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">{invoice.invoice_id}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-gray-900 dark:text-white">{formatCurrency(amountDue)}</p>
+                  {invoice.days_overdue && invoice.days_overdue > 0 && (
+                    <p className="text-xs text-red-500">-{invoice.days_overdue} {t('days')}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.bg}`}>
+                  {status.icon}
+                  {status.label}
+                </span>
+                {invoice.priority && (
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${priorityConfig[invoice.priority]}`}>
+                    {invoice.priority}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
+                  {channelIcons[invoice.preferred_channel]}
+                  {invoice.preferred_channel}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900/50">
             <tr>

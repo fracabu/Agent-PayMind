@@ -879,16 +879,16 @@ export default function Dashboard() {
         onToggleLanguage={handleToggleLanguage}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Stats */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <StatsCards result={analysisResult} language={language} />
         </div>
 
         {/* Agents Grid */}
-        <div className="mb-8">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('aiAgents')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('aiAgents')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {agents.map((agent) => (
               <AgentCard
                 key={agent.id}
@@ -901,9 +901,9 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Left Column - Workflow, Logs & History */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
             <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
             <LogsPanel logs={logs} onClear={clearLogs} language={language} />
             <WorkflowHistory
@@ -913,9 +913,9 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Right Column - Invoices Table */}
-          <div className="lg:col-span-2">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('invoicesTitle')}</h2>
+          {/* Right Column - Invoices Table (shown first on mobile) */}
+          <div className="lg:col-span-2 order-1 lg:order-2">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('invoicesTitle')}</h2>
             <InvoicesTable
               invoices={invoices}
               onSelectInvoice={setSelectedInvoice}
@@ -927,27 +927,29 @@ export default function Dashboard() {
 
         {/* Agent Outputs Section */}
         {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('agentOutputs')}</h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleExportResults}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  {t('exportCurrentResults')}
+                  <span className="hidden sm:inline">{t('exportCurrentResults')}</span>
+                  <span className="sm:hidden">{language === 'it' ? 'Esporta' : 'Export'}</span>
                 </button>
                 <button
                   onClick={handleSaveToHistory}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
                 >
                   <Save className="w-4 h-4" />
-                  {t('saveToHistory')}
+                  <span className="hidden sm:inline">{t('saveToHistory')}</span>
+                  <span className="sm:hidden">{language === 'it' ? 'Salva' : 'Save'}</span>
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <AnalysisReport
                 result={analysisResult}
                 invoices={invoices}
@@ -969,33 +971,33 @@ export default function Dashboard() {
             {/* Full AI Analysis Report */}
             {analysisReportContent && (
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <FileText className="w-5 h-5 text-gray-500" />
                     {t('fullAiReport')}
                   </h3>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCopyReport}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       title={language === 'it' ? 'Copia report' : 'Copy report'}
                     >
                       {reportCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                      {reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}
+                      <span className="hidden xs:inline">{reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}</span>
                     </button>
                     <button
                       onClick={handleExportPDF}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                       title={language === 'it' ? 'Esporta PDF professionale' : 'Export professional PDF'}
                     >
                       <Download className="w-4 h-4" />
-                      {language === 'it' ? 'Esporta PDF' : 'Export PDF'}
+                      <span className="hidden xs:inline">{language === 'it' ? 'Esporta PDF' : 'Export PDF'}</span>
                     </button>
                   </div>
                 </div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="prose dark:prose-invert max-w-none text-sm">
-                    <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">
+                    <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-lg overflow-auto max-h-64 sm:max-h-96 text-xs sm:text-sm">
                       {analysisReportContent}
                     </pre>
                   </div>

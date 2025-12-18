@@ -48,19 +48,19 @@ export default function StatsCards({ result, language }: StatsCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+          className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-gray-700"
         >
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${stat.bg}`}>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`p-1.5 sm:p-2 rounded-lg ${stat.bg} shrink-0`}>
               <span className={stat.color}>{stat.icon}</span>
             </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
-              <p className="text-xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">{stat.label}</p>
+              <p className="text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">{stat.value}</p>
             </div>
           </div>
         </div>
