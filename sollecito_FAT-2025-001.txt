@@ -1,0 +1,53 @@
+================================================================================
+SOLLECITO PAGAMENTO - PRIORITÀ ALTA
+================================================================================
+
+A: contabilita@acme.it
+Oggetto: Sollecito urgente - Fattura FAT-2025-001 scaduta da 93 giorni
+Priorità: ALTA
+
+--------------------------------------------------------------------------------
+
+Gentile ACME SpA,
+
+con la presente desideriamo richiamare cortesemente la Vostra attenzione sulla
+seguente fattura ancora in sospeso:
+
+DETTAGLI FATTURA:
+- Numero Fattura: FAT-2025-001
+- Importo dovuto: €2.450,00
+- Data di scadenza: 15/09/2025
+- Giorni di ritardo: 93 giorni (alla data odierna)
+- Stato: SCADUTA
+
+Nonostante i termini di pagamento concordati, ad oggi non abbiamo ancora
+ricevuto il saldo della suddetta fattura. Il ritardo accumulato è ormai
+significativo e richiede un intervento urgente.
+
+AZIONI RICHIESTE:
+Vi preghiamo di voler procedere con il pagamento entro i prossimi 5 giorni
+lavorativi. In alternativa, se avete già effettuato il bonifico, vi chiediamo
+cortesemente di inviarci la relativa ricevuta di pagamento per consentirci di
+aggiornare la nostra contabilità.
+
+INFORMAZIONI PER IL BONIFICO:
+[Inserire qui i dati bancari per il pagamento]
+
+Nel caso in cui sussistano contestazioni, problematiche o necessità di
+chiarimenti relativi alla fattura in oggetto, vi invitiamo a contattarci
+tempestivamente per trovare una soluzione condivisa.
+
+Restiamo a disposizione per qualsiasi ulteriore informazione e confidiamo in
+un Vostro sollecito riscontro.
+
+Cordiali saluti,
+
+[Nome Azienda]
+[Ufficio Amministrazione]
+[Telefono]
+[Email]
+
+--------------------------------------------------------------------------------
+NOTA: Questo è un sollecito automatizzato generato dal sistema PayMind.
+Data generazione: 17/12/2025
+================================================================================

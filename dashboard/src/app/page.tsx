@@ -141,6 +141,18 @@ export default function Dashboard() {
       }).format(amount);
     };
 
+    // Translate priority based on language
+    const translatePriority = (priority: string | undefined): string => {
+      if (!priority) return 'N/A';
+      const upperPriority = priority.toUpperCase();
+      if (language === 'en') {
+        if (upperPriority === 'ALTA') return 'HIGH';
+        if (upperPriority === 'MEDIA') return 'MEDIUM';
+        if (upperPriority === 'BASSA') return 'LOW';
+      }
+      return upperPriority;
+    };
+
     // === HEADER (minimal, professional) ===
     doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
     doc.rect(0, 0, pageWidth, 28, 'F');
@@ -260,7 +272,7 @@ export default function Dashboard() {
             inv.customer_name,
             formatCurrency(inv.amount_total - inv.amount_paid),
             String(inv.days_overdue || 0),
-            (inv.priority || 'N/A').toUpperCase()
+            translatePriority(inv.priority)
           ]),
           theme: 'striped',
           headStyles: {
@@ -304,7 +316,7 @@ export default function Dashboard() {
           msg.channel.toUpperCase(),
           msg.customer_name,
           msg.invoice_id,
-          (msg.priority || 'N/A').toUpperCase()
+          translatePriority(msg.priority)
         ]),
         theme: 'striped',
         headStyles: {

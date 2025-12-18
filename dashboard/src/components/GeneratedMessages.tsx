@@ -57,6 +57,16 @@ export default function GeneratedMessages({ messages, isVisible, language }: Gen
     return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
+  // Translate priority based on language
+  const translatePriority = (priority: string): string => {
+    if (language === 'en') {
+      if (priority === 'ALTA') return 'HIGH';
+      if (priority === 'MEDIA') return 'MEDIUM';
+      if (priority === 'BASSA') return 'LOW';
+    }
+    return priority;
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
@@ -104,7 +114,7 @@ export default function GeneratedMessages({ messages, isVisible, language }: Gen
                     msg.priority === 'MEDIA' ? 'bg-orange-500 text-white' :
                     'bg-gray-400 text-white'
                   }`}>
-                    {msg.priority}
+                    {translatePriority(msg.priority)}
                   </span>
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-gray-400" />

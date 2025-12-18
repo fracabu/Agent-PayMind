@@ -17,14 +17,35 @@ const channelIcons = {
   sms: <Phone className="w-4 h-4" />,
 };
 
-const priorityConfig = {
+const priorityStyles = {
   ALTA: 'bg-red-500 text-white',
   MEDIA: 'bg-orange-500 text-white',
   BASSA: 'bg-gray-400 text-white',
+  HIGH: 'bg-red-500 text-white',
+  MEDIUM: 'bg-orange-500 text-white',
+  LOW: 'bg-gray-400 text-white',
 };
 
 export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoiceId, language }: InvoicesTableProps) {
   const { t } = useTranslation(language);
+
+  // Translate priority based on language
+  const translatePriority = (priority: string | undefined): string => {
+    if (!priority) return '';
+    const upperPriority = priority.toUpperCase();
+    if (language === 'en') {
+      if (upperPriority === 'ALTA') return 'HIGH';
+      if (upperPriority === 'MEDIA') return 'MEDIUM';
+      if (upperPriority === 'BASSA') return 'LOW';
+    }
+    return upperPriority;
+  };
+
+  const getPriorityStyle = (priority: string | undefined): string => {
+    if (!priority) return 'bg-gray-300 text-white';
+    const upperPriority = priority.toUpperCase();
+    return priorityStyles[upperPriority as keyof typeof priorityStyles] || 'bg-gray-300 text-white';
+  };
 
   const statusConfig = {
     open: {
@@ -98,8 +119,8 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
                   {status.label}
                 </span>
                 {invoice.priority && (
-                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${priorityConfig[invoice.priority]}`}>
-                    {invoice.priority}
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${getPriorityStyle(invoice.priority)}`}>
+                    {translatePriority(invoice.priority)}
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs">
@@ -201,8 +222,8 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
                   </td>
                   <td className="px-4 py-3">
                     {invoice.priority && (
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${priorityConfig[invoice.priority]}`}>
-                        {invoice.priority}
+                      <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${getPriorityStyle(invoice.priority)}`}>
+                        {translatePriority(invoice.priority)}
                       </span>
                     )}
                   </td>
