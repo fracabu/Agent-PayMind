@@ -15,14 +15,17 @@ import GeneratedMessages from '@/components/GeneratedMessages';
 import ResponseAnalysis from '@/components/ResponseAnalysis';
 import SettingsModal, { AISettings } from '@/components/SettingsModal';
 import WorkflowHistory from '@/components/WorkflowHistory';
-import { Download, Save } from 'lucide-react';
+import { Download, Save, Copy, Check, FileText } from 'lucide-react';
 import { Invoice } from '@/types';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function Dashboard() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [reportCopied, setReportCopied] = useState(false);
 
   // AbortController for stopping workflow
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -83,6 +86,262 @@ export default function Dashboard() {
   const logMsg = useCallback((key: Parameters<typeof formatMessage>[1], params?: Record<string, string | number>) => {
     return formatMessage(language, key, params);
   }, [language]);
+
+  // Copy full AI report to clipboard
+  const handleCopyReport = useCallback(async () => {
+    if (analysisReportContent) {
+      await navigator.clipboard.writeText(analysisReportContent);
+      setReportCopied(true);
+      setTimeout(() => setReportCopied(false), 2000);
+    }
+  }, [analysisReportContent]);
+
+  // Generate professional PDF report
+  const handleExportPDF = useCallback(() => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Helper functions
+    const addTitle = (text: string, size: number = 16) => {
+      doc.setFontSize(size);
+      doc.setFont('helvetica', 'bold');
+      doc.text(text, pageWidth / 2, yPos, { align: 'center' });
+      yPos += size * 0.5;
+    };
+
+    const addSubtitle = (text: string) => {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(59, 130, 246); // Blue
+      doc.text(text, 14, yPos);
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+    };
+
+    const addText = (text: string, indent: number = 14) => {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(text, indent, yPos);
+      yPos += 6;
+    };
+
+    const checkPageBreak = (needed: number = 30) => {
+      if (yPos > 270 - needed) {
+        doc.addPage();
+        yPos = 20;
+      }
+    };
+
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', {
+        style: 'currency',
+        currency: 'EUR'
+      }).format(amount);
+    };
+
+    // === HEADER ===
+    doc.setFillColor(59, 130, 246);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PayMind', pageWidth / 2, 18, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(language === 'it' ? 'Report Analisi Fatture' : 'Invoice Analysis Report', pageWidth / 2, 28, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    yPos = 45;
+
+    // Date and AI info
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${language === 'it' ? 'Generato il' : 'Generated on'}: ${new Date().toLocaleString(language === 'it' ? 'it-IT' : 'en-US')}`, 14, yPos);
+    doc.text(`AI: ${aiSettings.provider} / ${aiSettings.model}`, pageWidth - 14, yPos, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+    yPos += 12;
+
+    // === EXECUTIVE SUMMARY ===
+    if (analysisResult) {
+      addSubtitle(language === 'it' ? '📊 Riepilogo Esecutivo' : '📊 Executive Summary');
+
+      const overdueInvoices = invoices.filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0);
+      const avgDays = overdueInvoices.length > 0
+        ? Math.round(overdueInvoices.reduce((sum, inv) => sum + (inv.days_overdue || 0), 0) / overdueInvoices.length)
+        : 0;
+
+      // Summary stats in a box
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(14, yPos, pageWidth - 28, 28, 3, 3, 'F');
+      yPos += 8;
+
+      const col1 = 24, col2 = 70, col3 = 116, col4 = 162;
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(language === 'it' ? 'Fatture Totali' : 'Total Invoices', col1, yPos);
+      doc.text(language === 'it' ? 'Scadute' : 'Overdue', col2, yPos);
+      doc.text(language === 'it' ? 'Ritardo Medio' : 'Avg Delay', col3, yPos);
+      doc.text(language === 'it' ? 'Crediti Totali' : 'Total Credits', col4, yPos);
+      yPos += 6;
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(analysisResult.totalInvoices), col1, yPos);
+      doc.setTextColor(220, 38, 38);
+      doc.text(String(analysisResult.overdueInvoices), col2, yPos);
+      doc.setTextColor(234, 88, 12);
+      doc.text(`${avgDays} ${language === 'it' ? 'gg' : 'days'}`, col3, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(formatCurrency(analysisResult.totalCredits), col4, yPos);
+      doc.setFont('helvetica', 'normal');
+      yPos += 18;
+
+      // === PRIORITY BREAKDOWN TABLE ===
+      checkPageBreak(50);
+      addSubtitle(language === 'it' ? '⚠️ Segmentazione Priorità' : '⚠️ Priority Segmentation');
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [[
+          language === 'it' ? 'Priorità' : 'Priority',
+          language === 'it' ? 'Fatture' : 'Invoices',
+          '%'
+        ]],
+        body: [
+          [language === 'it' ? '🔴 ALTA' : '🔴 HIGH', String(analysisResult.byPriority.alta), `${((analysisResult.byPriority.alta / analysisResult.totalInvoices) * 100).toFixed(1)}%`],
+          [language === 'it' ? '🟠 MEDIA' : '🟠 MEDIUM', String(analysisResult.byPriority.media), `${((analysisResult.byPriority.media / analysisResult.totalInvoices) * 100).toFixed(1)}%`],
+          [language === 'it' ? '⚪ BASSA' : '⚪ LOW', String(analysisResult.byPriority.bassa), `${((analysisResult.byPriority.bassa / analysisResult.totalInvoices) * 100).toFixed(1)}%`],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] },
+        margin: { left: 14, right: 14 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
+
+      // === FINANCIAL SUMMARY ===
+      checkPageBreak(40);
+      addSubtitle(language === 'it' ? '💰 Riepilogo Finanziario' : '💰 Financial Summary');
+
+      const overduePercent = analysisResult.totalCredits > 0
+        ? ((analysisResult.overdueAmount / analysisResult.totalCredits) * 100).toFixed(1)
+        : '0';
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [[language === 'it' ? 'Metrica' : 'Metric', language === 'it' ? 'Valore' : 'Value']],
+        body: [
+          [language === 'it' ? 'Crediti Totali' : 'Total Credits', formatCurrency(analysisResult.totalCredits)],
+          [language === 'it' ? 'Importo Scaduto' : 'Overdue Amount', formatCurrency(analysisResult.overdueAmount)],
+          [language === 'it' ? '% Scaduto' : '% Overdue', `${overduePercent}%`],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [34, 197, 94] },
+        margin: { left: 14, right: 14 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
+    }
+
+    // === INVOICES TABLE ===
+    if (invoices.length > 0) {
+      checkPageBreak(50);
+      addSubtitle(language === 'it' ? '📋 Dettaglio Fatture' : '📋 Invoice Details');
+
+      const overdueInvoices = invoices
+        .filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0)
+        .sort((a, b) => (b.days_overdue || 0) - (a.days_overdue || 0));
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [[
+          'ID',
+          language === 'it' ? 'Cliente' : 'Customer',
+          language === 'it' ? 'Importo' : 'Amount',
+          language === 'it' ? 'Giorni' : 'Days',
+          language === 'it' ? 'Priorità' : 'Priority'
+        ]],
+        body: overdueInvoices.map(inv => [
+          inv.invoice_id,
+          inv.customer_name,
+          formatCurrency(inv.amount_total - inv.amount_paid),
+          String(inv.days_overdue || 0),
+          inv.priority?.toUpperCase() || 'N/A'
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [239, 68, 68] },
+        margin: { left: 14, right: 14 },
+        styles: { fontSize: 9 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
+    }
+
+    // === GENERATED MESSAGES ===
+    if (generatedMessages.length > 0) {
+      checkPageBreak(50);
+      addSubtitle(language === 'it' ? '📧 Messaggi Generati' : '📧 Generated Messages');
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [[
+          language === 'it' ? 'Canale' : 'Channel',
+          language === 'it' ? 'Cliente' : 'Customer',
+          'ID',
+          language === 'it' ? 'Priorità' : 'Priority'
+        ]],
+        body: generatedMessages.map(msg => [
+          msg.channel.toUpperCase(),
+          msg.customer_name,
+          msg.invoice_id,
+          msg.priority?.toUpperCase() || 'N/A'
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [168, 85, 247] },
+        margin: { left: 14, right: 14 },
+        styles: { fontSize: 9 },
+      });
+      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
+    }
+
+    // === RESPONSE ANALYSIS ===
+    if (responseAnalysis) {
+      checkPageBreak(60);
+      addSubtitle(language === 'it' ? '💬 Analisi Risposta Cliente' : '💬 Customer Response Analysis');
+
+      doc.setFillColor(249, 250, 251);
+      doc.roundedRect(14, yPos, pageWidth - 28, 45, 3, 3, 'F');
+      yPos += 8;
+
+      addText(`${language === 'it' ? 'Intent' : 'Intent'}: ${responseAnalysis.intent} (${responseAnalysis.confidence}% confidence)`, 20);
+      addText(`${language === 'it' ? 'Sentiment' : 'Sentiment'}: ${responseAnalysis.sentiment}`, 20);
+      addText(`${language === 'it' ? 'Rischio' : 'Risk'}: ${responseAnalysis.risk_level}`, 20);
+
+      if (responseAnalysis.suggested_actions?.length > 0) {
+        yPos += 4;
+        addText(`${language === 'it' ? 'Azioni Suggerite' : 'Suggested Actions'}:`, 20);
+        responseAnalysis.suggested_actions.forEach((action: string, idx: number) => {
+          addText(`${idx + 1}. ${action}`, 26);
+        });
+      }
+      yPos += 10;
+    }
+
+    // === FOOTER ===
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `PayMind Report - ${language === 'it' ? 'Pagina' : 'Page'} ${i}/${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+
+    // Save PDF
+    doc.save(`paymind-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    addLog({ agent: 'system', message: language === 'it' ? 'Report PDF esportato con successo' : 'PDF report exported successfully', type: 'success' });
+  }, [analysisResult, invoices, generatedMessages, responseAnalysis, aiSettings, language, addLog]);
 
   const parseCSV = (text: string): Invoice[] => {
     const lines = text.trim().split('\n');
@@ -584,14 +843,37 @@ export default function Dashboard() {
 
             {/* Full AI Analysis Report */}
             {analysisReportContent && (
-              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                  {t('fullAiReport')}
-                </h3>
-                <div className="prose dark:prose-invert max-w-none text-sm">
-                  <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">
-                    {analysisReportContent}
-                  </pre>
+              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-gray-500" />
+                    {t('fullAiReport')}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopyReport}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      title={language === 'it' ? 'Copia report' : 'Copy report'}
+                    >
+                      {reportCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                      {reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}
+                    </button>
+                    <button
+                      onClick={handleExportPDF}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                      title={language === 'it' ? 'Esporta PDF professionale' : 'Export professional PDF'}
+                    >
+                      <Download className="w-4 h-4" />
+                      {language === 'it' ? 'Esporta PDF' : 'Export PDF'}
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="prose dark:prose-invert max-w-none text-sm">
+                    <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">
+                      {analysisReportContent}
+                    </pre>
+                  </div>
                 </div>
               </div>
             )}
