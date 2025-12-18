@@ -401,26 +401,28 @@ export default function Dashboard() {
 
       doc.text(`Intent:`, 20, infoY);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${responseAnalysis.intent} (${responseAnalysis.confidence}% confidence)`, 50, infoY);
+      doc.text(`${responseAnalysis.intent || 'N/A'} (${responseAnalysis.confidence || 0}% confidence)`, 50, infoY);
 
       infoY += 10;
       doc.setFont('helvetica', 'bold');
       doc.text(`Sentiment:`, 20, infoY);
       doc.setFont('helvetica', 'normal');
-      const sentimentColor = responseAnalysis.sentiment === 'positive' ? [34, 197, 94] :
-                             responseAnalysis.sentiment === 'negative' ? [239, 68, 68] : [107, 114, 128];
+      const sentiment = responseAnalysis.sentiment || 'neutral';
+      const sentimentColor = sentiment === 'positive' ? [34, 197, 94] :
+                             sentiment === 'negative' ? [239, 68, 68] : [107, 114, 128];
       doc.setTextColor(sentimentColor[0], sentimentColor[1], sentimentColor[2]);
-      doc.text(responseAnalysis.sentiment, 50, infoY);
+      doc.text(sentiment, 50, infoY);
       doc.setTextColor(31, 41, 55);
 
       infoY += 10;
       doc.setFont('helvetica', 'bold');
       doc.text(`${language === 'it' ? 'Rischio' : 'Risk'}:`, 20, infoY);
       doc.setFont('helvetica', 'normal');
-      const riskColor = responseAnalysis.risk_level === 'high' ? [239, 68, 68] :
-                        responseAnalysis.risk_level === 'medium' ? [245, 158, 11] : [34, 197, 94];
+      const riskLevel = responseAnalysis.risk_level || 'medium';
+      const riskColor = riskLevel === 'high' ? [239, 68, 68] :
+                        riskLevel === 'medium' ? [245, 158, 11] : [34, 197, 94];
       doc.setTextColor(riskColor[0], riskColor[1], riskColor[2]);
-      doc.text(responseAnalysis.risk_level.toUpperCase(), 50, infoY);
+      doc.text(riskLevel.toUpperCase(), 50, infoY);
       doc.setTextColor(0, 0, 0);
 
       yPos += 65;
