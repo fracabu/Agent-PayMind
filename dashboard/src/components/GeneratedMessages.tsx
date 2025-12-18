@@ -69,47 +69,46 @@ export default function GeneratedMessages({ messages, isVisible, language }: Gen
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
-        <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <Mail className="w-5 h-5 text-green-500" />
-          {t('messagesGenerated')}
-          <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-2">
-            reminder-generator-agent
+      <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+            <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+            <span className="truncate">{t('messagesGenerated')}</span>
+          </h2>
+          <span className="text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full shrink-0">
+            {messages.length}
           </span>
-          <span className="ml-auto text-sm font-normal bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">
-            {messages.length} {t('messagesCount')}
-          </span>
-        </h2>
+        </div>
       </div>
 
-      <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto">
+      <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-72 sm:max-h-96 overflow-y-auto">
         {messages.map((msg) => {
           const channel = channelConfig[msg.channel];
           const isExpanded = expandedId === msg.id;
 
           return (
-            <div key={msg.id} className="p-3">
+            <div key={msg.id} className="p-2 sm:p-3">
               {/* Header */}
               <div
-                className="flex items-center justify-between cursor-pointer"
+                className="flex items-center justify-between cursor-pointer gap-2"
                 onClick={() => setExpandedId(isExpanded ? null : msg.id)}
               >
-                <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${channel.bg}`}>
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-medium shrink-0 ${channel.bg}`}>
                     {channel.icon}
-                    {channel.label}
+                    <span className="hidden xs:inline">{channel.label}</span>
                   </span>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate">
                       {msg.customerName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {msg.invoiceId} • {formatCurrency(msg.amount)} • {msg.daysOverdue} {t('delayDays')}
+                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {msg.invoiceId} • {formatCurrency(msg.amount)}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-0.5 rounded font-bold ${
+                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                  <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded font-bold ${
                     msg.priority === 'ALTA' ? 'bg-red-500 text-white' :
                     msg.priority === 'MEDIA' ? 'bg-orange-500 text-white' :
                     'bg-gray-400 text-white'
@@ -117,37 +116,37 @@ export default function GeneratedMessages({ messages, isVisible, language }: Gen
                     {translatePriority(msg.priority)}
                   </span>
                   {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-gray-400" />
+                    <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                    <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                   )}
                 </div>
               </div>
 
               {/* Content */}
               {isExpanded && (
-                <div className="mt-3 space-y-2">
+                <div className="mt-2 sm:mt-3 space-y-2">
                   {msg.subject && (
                     <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('subject')}</p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{msg.subject}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1">{t('subject')}</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">{msg.subject}</p>
                     </div>
                   )}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-3 relative">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2 sm:p-3 relative">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCopy(msg.id, msg.content);
                       }}
-                      className="absolute top-2 right-2 p-1.5 rounded bg-white dark:bg-gray-700 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                      className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 p-1 sm:p-1.5 rounded bg-white dark:bg-gray-700 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                     >
                       {copiedId === msg.id ? (
-                        <Check className="w-4 h-4 text-green-500" />
+                        <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-400" />
+                        <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                       )}
                     </button>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap pr-10">
+                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap pr-8 sm:pr-10">
                       {msg.content}
                     </p>
                   </div>

@@ -103,11 +103,11 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-lg mx-4 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('aiSettings')}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl p-4 sm:p-6 w-full sm:max-w-lg sm:mx-4 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{t('aiSettings')}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -120,29 +120,29 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
           <div className="space-y-6">
             {/* Provider Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('aiProvider')}
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                 {providers.map((provider) => (
                   <button
                     key={provider.id}
                     onClick={() => handleProviderChange(provider.id)}
                     className={`
-                      flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left
+                      flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-lg border-2 transition-all text-left
                       ${selectedProvider === provider.id
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                       }
                     `}
                   >
-                    <span className="text-2xl">{provider.icon}</span>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white text-sm">
+                    <span className="text-xl sm:text-2xl">{provider.icon}</span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate">
                         {provider.name}
                       </p>
                       {provider.configured && (
-                        <p className="text-xs text-green-600 dark:text-green-400">{t('configured')}</p>
+                        <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400">{t('configured')}</p>
                       )}
                     </div>
                   </button>

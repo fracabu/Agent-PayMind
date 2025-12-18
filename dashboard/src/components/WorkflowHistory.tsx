@@ -126,23 +126,23 @@ export default function WorkflowHistory({ language, onLoadRun, refreshTrigger }:
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-            <History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+            <History className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
           </div>
           <div className="text-left">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{t('workflowHistory')}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">{t('workflowHistory')}</h3>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               {runs.length} {t('savedRuns')}
             </p>
           </div>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-5 h-5 text-gray-400" />
+          <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-gray-400" />
+          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
         )}
       </button>
 
@@ -157,59 +157,59 @@ export default function WorkflowHistory({ language, onLoadRun, refreshTrigger }:
               {t('noSavedRuns')}
             </div>
           ) : (
-            <div className="max-h-64 overflow-y-auto">
+            <div className="max-h-48 sm:max-h-64 overflow-y-auto">
               {runs.map((run) => (
                 <div
                   key={run.id}
-                  className="p-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                  className="p-2 sm:p-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${
                           run.status === 'completed' ? 'bg-green-500' :
                           run.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
                         }`} />
-                        <span className="font-medium text-gray-900 dark:text-white truncate">
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">
                           {run.name || `Run ${formatDate(run.startedAt)}`}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-2 sm:gap-3 mt-1 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(run.startedAt)}
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="hidden xs:flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTime(run.startedAt)}
                         </span>
                         <span className="flex items-center gap-1">
                           <FileText className="w-3 h-3" />
-                          {run.totalInvoices} {t('invoices')}
+                          {run.totalInvoices}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 ml-2">
+                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                       <button
                         onClick={() => onLoadRun(run)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                        className="p-1 sm:p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                         title={t('loadRun')}
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                       <button
                         onClick={(e) => handleExport(run, e)}
-                        className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                        className="p-1 sm:p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors hidden xs:block"
                         title={t('exportRun')}
                       >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                       <button
                         onClick={(e) => handleDelete(run.id, e)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                        className="p-1 sm:p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                         title={t('deleteRun')}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                     </div>
                   </div>

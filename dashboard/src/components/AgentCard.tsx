@@ -63,47 +63,47 @@ export default function AgentCard({ agent, isActive, onClick, language }: AgentC
     <div
       onClick={onClick}
       className={`
-        relative p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer
+        relative p-3 sm:p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer
         ${config.bg} ${config.border}
         ${isActive ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900' : ''}
         hover:shadow-lg hover:scale-[1.02]
       `}
     >
       {/* Status Badge */}
-      <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${config.badge}`}>
+      <div className={`absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${config.badge}`}>
         {config.icon}
-        {config.label}
+        <span className="hidden xs:inline">{config.label}</span>
       </div>
 
       {/* Icon */}
-      <div className="text-4xl mb-3">{agent.icon}</div>
+      <div className="text-2xl sm:text-4xl mb-2 sm:mb-3">{agent.icon}</div>
 
       {/* Name */}
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+      <h3 className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 pr-16 sm:pr-20">
         {agentName}
       </h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2 sm:mb-3 line-clamp-2">
         {agentDescription}
       </p>
 
       {/* Progress Bar (when running) */}
       {agent.status === 'running' && agent.progress !== undefined && (
-        <div className="mt-3">
-          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="mt-2 sm:mt-3">
+          <div className="h-1.5 sm:h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-500 transition-all duration-500"
               style={{ width: `${agent.progress}%` }}
             />
           </div>
-          <p className="text-xs text-gray-500 mt-1">{agent.progress}%</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">{agent.progress}%</p>
         </div>
       )}
 
       {/* Duration (when completed) */}
       {agent.status === 'completed' && agent.duration && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-2">
           {t('completedIn')} {(agent.duration / 1000).toFixed(1)}s
         </p>
       )}

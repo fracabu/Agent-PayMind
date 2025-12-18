@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Custom xs breakpoint for extra small screens (480px) */
+@custom-media --xs (width >= 480px);
+@variant xs (@media (--xs));
+
 :root {
   --background: #f9fafb;
   --foreground: #111827;
