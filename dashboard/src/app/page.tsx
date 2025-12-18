@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation, formatMessage, Language } from '@/lib/i18n';
 import Header from '@/components/Header';
 import AgentCard from '@/components/AgentCard';
 import WorkflowTimeline from '@/components/WorkflowTimeline';
@@ -76,6 +76,11 @@ export default function Dashboard() {
 
   const { t } = useTranslation(language);
 
+  // Helper for translated log messages
+  const logMsg = useCallback((key: Parameters<typeof formatMessage>[1], params?: Record<string, string | number>) => {
+    return formatMessage(language, key, params);
+  }, [language]);
+
   const parseCSV = (text: string): Invoice[] => {
     const lines = text.trim().split('\n');
     const headers = lines[0].split(',');
@@ -103,7 +108,7 @@ export default function Dashboard() {
     const text = await file.text();
     const parsedInvoices = parseCSV(text);
 
-    addLog({ agent: 'Sistema', message: `Caricamento ${parsedInvoices.length} fatture...`, type: 'info' });
+    addLog({ agent: t('system'), message: logMsg('logLoadingInvoices', { count: parsedInvoices.length }), type: 'info' });
 
     try {
       // Upload to database via API
@@ -134,12 +139,12 @@ export default function Dashboard() {
         priority: inv.priority,
       })));
 
-      addLog({ agent: 'Sistema', message: `Caricate ${result.count} fatture nel database`, type: 'success' });
+      addLog({ agent: t('system'), message: logMsg('logInvoicesLoaded', { count: result.count }), type: 'success' });
       updateWorkflowStep(1, 'completed');
     } catch (error) {
-      addLog({ agent: 'Sistema', message: `Errore: ${error}`, type: 'error' });
+      addLog({ agent: t('system'), message: logMsg('logError', { error: String(error) }), type: 'error' });
     }
-  }, [setInvoices, addLog, updateWorkflowStep]);
+  }, [setInvoices, addLog, updateWorkflowStep, t, logMsg]);
 
   const runWorkflow = useCallback(async () => {
     if (invoices.length === 0) return;
@@ -160,14 +165,14 @@ export default function Dashboard() {
     updateWorkflowStep(4, 'pending');
     updateWorkflowStep(5, 'pending');
 
-    addLog({ agent: 'Sistema', message: 'Avvio workflow con AI reale...', type: 'info' });
-    addLog({ agent: 'Sistema', message: `Provider: ${aiSettings.provider} | Model: ${aiSettings.model}`, type: 'info' });
+    addLog({ agent: t('system'), message: logMsg('logWorkflowStart'), type: 'info' });
+    addLog({ agent: t('system'), message: logMsg('logProviderInfo', { provider: aiSettings.provider, model: aiSettings.model }), type: 'info' });
 
     try {
       // Step 2: Payment Monitor Agent
       updateWorkflowStep(2, 'running');
       setAgentStatus('payment-monitor', 'running');
-      addLog({ agent: 'payment-monitor', message: 'Avvio analisi fatture con AI...', type: 'info' });
+      addLog({ agent: 'payment-monitor', message: logMsg('logAnalysisStart'), type: 'info' });
 
       const monitorStartTime = Date.now();
       const monitorResponse = await fetch('/api/agents/payment-monitor', {
@@ -191,8 +196,8 @@ export default function Dashboard() {
       setAnalysisResult(monitorResult.stats);
       setAnalysisReportContent(monitorResult.analysis);
 
-      addLog({ agent: 'payment-monitor', message: `Analisi completata (${monitorResult.tokensUsed || 'N/A'} tokens)`, type: 'success' });
-      addLog({ agent: 'payment-monitor', message: `Trovate ${monitorResult.stats.overdueInvoices} fatture scadute`, type: 'warning' });
+      addLog({ agent: 'payment-monitor', message: logMsg('logAnalysisComplete', { tokens: monitorResult.tokensUsed || 'N/A' }), type: 'success' });
+      addLog({ agent: 'payment-monitor', message: logMsg('logOverdueFound', { count: monitorResult.stats.overdueInvoices }), type: 'warning' });
 
       setAgentStatus('payment-monitor', 'completed', monitorDuration);
       updateWorkflowStep(2, 'completed');
@@ -201,7 +206,7 @@ export default function Dashboard() {
       // Step 3: Reminder Generator Agent
       updateWorkflowStep(3, 'running');
       setAgentStatus('reminder-generator', 'running');
-      addLog({ agent: 'reminder-generator', message: 'Generazione messaggi con AI...', type: 'info' });
+      addLog({ agent: 'reminder-generator', message: logMsg('logGeneratingMessages'), type: 'info' });
 
       const reminderStartTime = Date.now();
       const reminderResponse = await fetch('/api/agents/reminder-generator', {
@@ -224,9 +229,9 @@ export default function Dashboard() {
 
       setGeneratedMessages(reminderResult.messages);
 
-      addLog({ agent: 'reminder-generator', message: `Generati ${reminderResult.count} messaggi`, type: 'success' });
+      addLog({ agent: 'reminder-generator', message: logMsg('logMessagesGenerated', { count: reminderResult.count }), type: 'success' });
       reminderResult.messages.forEach((msg: { channel: string; customerName: string }) => {
-        addLog({ agent: 'reminder-generator', message: `${msg.channel.toUpperCase()} per ${msg.customerName}`, type: 'info' });
+        addLog({ agent: 'reminder-generator', message: logMsg('logMessageFor', { channel: msg.channel.toUpperCase(), customer: msg.customerName }), type: 'info' });
       });
 
       setAgentStatus('reminder-generator', 'completed', reminderDuration);
@@ -235,17 +240,17 @@ export default function Dashboard() {
 
       // Step 4: Simulated wait for responses
       updateWorkflowStep(4, 'running');
-      addLog({ agent: 'Sistema', message: 'Simulazione attesa risposte...', type: 'info' });
+      addLog({ agent: t('system'), message: logMsg('logWaitingResponses'), type: 'info' });
 
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       updateWorkflowStep(4, 'completed');
-      addLog({ agent: 'Sistema', message: 'Risposta simulata ricevuta', type: 'info' });
+      addLog({ agent: t('system'), message: logMsg('logResponseReceived'), type: 'info' });
 
       // Step 5: Response Handler Agent
       updateWorkflowStep(5, 'running');
       setAgentStatus('response-handler', 'running');
-      addLog({ agent: 'response-handler', message: 'Analisi risposta con AI...', type: 'info' });
+      addLog({ agent: 'response-handler', message: logMsg('logAnalyzingResponse'), type: 'info' });
 
       const handlerStartTime = Date.now();
 
@@ -285,17 +290,17 @@ export default function Dashboard() {
         riskLevel: handlerResult.analysis.riskLevel,
       });
 
-      addLog({ agent: 'response-handler', message: `Intent: ${handlerResult.analysis.intent} (${handlerResult.analysis.intentConfidence}%)`, type: 'info' });
-      addLog({ agent: 'response-handler', message: `Sentiment: ${handlerResult.analysis.sentiment}`, type: 'info' });
-      addLog({ agent: 'response-handler', message: `Rischio: ${handlerResult.analysis.riskLevel}`, type: 'warning' });
+      addLog({ agent: 'response-handler', message: logMsg('logIntentDetected', { intent: handlerResult.analysis.intent, confidence: handlerResult.analysis.intentConfidence }), type: 'info' });
+      addLog({ agent: 'response-handler', message: logMsg('logSentimentDetected', { sentiment: handlerResult.analysis.sentiment }), type: 'info' });
+      addLog({ agent: 'response-handler', message: logMsg('logRiskDetected', { risk: handlerResult.analysis.riskLevel }), type: 'warning' });
 
       setAgentStatus('response-handler', 'completed', handlerDuration);
       updateWorkflowStep(5, 'completed');
       setShowResponseAnalysis(true);
 
-      addLog({ agent: 'Sistema', message: 'Workflow completato con successo!', type: 'success' });
+      addLog({ agent: t('system'), message: logMsg('logWorkflowComplete'), type: 'success' });
     } catch (error) {
-      addLog({ agent: 'Sistema', message: `Errore: ${error instanceof Error ? error.message : 'Unknown error'}`, type: 'error' });
+      addLog({ agent: t('system'), message: logMsg('logError', { error: error instanceof Error ? error.message : 'Unknown error' }), type: 'error' });
 
       // Reset agent states on error
       setAgentStatus('payment-monitor', 'error');
@@ -304,7 +309,7 @@ export default function Dashboard() {
     } finally {
       setWorkflowRunning(false);
     }
-  }, [invoices, aiSettings, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis]);
+  }, [invoices, aiSettings, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, t, logMsg]);
 
   const handleReset = useCallback(async () => {
     try {
@@ -318,8 +323,8 @@ export default function Dashboard() {
 
   const handleSaveSettings = useCallback((settings: AISettings) => {
     setAISettings(settings);
-    addLog({ agent: 'Sistema', message: `Provider cambiato: ${settings.provider}`, type: 'info' });
-  }, [setAISettings, addLog]);
+    addLog({ agent: t('system'), message: logMsg('logProviderChanged', { provider: settings.provider }), type: 'info' });
+  }, [setAISettings, addLog, t, logMsg]);
 
   // Export current results to JSON
   const handleExportResults = useCallback(() => {
@@ -344,13 +349,13 @@ export default function Dashboard() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    addLog({ agent: 'Sistema', message: 'Risultati esportati con successo', type: 'success' });
-  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, addLog]);
+    addLog({ agent: t('system'), message: logMsg('logExportSuccess'), type: 'success' });
+  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, addLog, t, logMsg]);
 
   // Save current workflow run to history
   const handleSaveToHistory = useCallback(async () => {
     if (!analysisResult) {
-      addLog({ agent: 'Sistema', message: 'Nessun risultato da salvare', type: 'warning' });
+      addLog({ agent: t('system'), message: logMsg('logNoResults'), type: 'warning' });
       return;
     }
 
@@ -376,15 +381,15 @@ export default function Dashboard() {
       });
 
       if (response.ok) {
-        addLog({ agent: 'Sistema', message: 'Workflow salvato nello storico', type: 'success' });
+        addLog({ agent: t('system'), message: logMsg('logSaveSuccess'), type: 'success' });
         setHistoryRefresh(prev => prev + 1);
       } else {
         throw new Error('Failed to save workflow');
       }
     } catch (error) {
-      addLog({ agent: 'Sistema', message: `Errore salvataggio: ${error}`, type: 'error' });
+      addLog({ agent: t('system'), message: logMsg('logSaveError', { error: String(error) }), type: 'error' });
     }
-  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, logs, addLog]);
+  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, logs, addLog, t, logMsg]);
 
   // Load a workflow run from history
   const handleLoadRun = useCallback((run: {
@@ -437,8 +442,8 @@ export default function Dashboard() {
       setInvoices(invs);
     }
 
-    addLog({ agent: 'Sistema', message: 'Workflow caricato dallo storico', type: 'info' });
-  }, [setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, setInvoices, addLog]);
+    addLog({ agent: t('system'), message: logMsg('logLoadedFromHistory'), type: 'info' });
+  }, [setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, setInvoices, addLog, t, logMsg]);
 
   return (
     <div className="min-h-screen">

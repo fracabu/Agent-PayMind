@@ -176,6 +176,32 @@ export const translations = {
     loading: 'Caricamento',
     exportCurrentResults: 'Esporta Risultati',
     saveToHistory: 'Salva nello Storico',
+
+    // Log messages
+    logLoadingInvoices: 'Caricamento {count} fatture...',
+    logInvoicesLoaded: 'Caricate {count} fatture nel database',
+    logError: 'Errore: {error}',
+    logWorkflowStart: 'Avvio workflow con AI reale...',
+    logProviderInfo: 'Provider: {provider} | Model: {model}',
+    logAnalysisStart: 'Avvio analisi fatture con AI...',
+    logAnalysisComplete: 'Analisi completata ({tokens} tokens)',
+    logOverdueFound: 'Trovate {count} fatture scadute',
+    logGeneratingMessages: 'Generazione messaggi con AI...',
+    logMessagesGenerated: 'Generati {count} messaggi',
+    logMessageFor: '{channel} per {customer}',
+    logWaitingResponses: 'Simulazione attesa risposte...',
+    logResponseReceived: 'Risposta simulata ricevuta',
+    logAnalyzingResponse: 'Analisi risposta con AI...',
+    logIntentDetected: 'Intent: {intent} ({confidence}%)',
+    logSentimentDetected: 'Sentiment: {sentiment}',
+    logRiskDetected: 'Rischio: {risk}',
+    logWorkflowComplete: 'Workflow completato con successo!',
+    logProviderChanged: 'Provider cambiato: {provider}',
+    logExportSuccess: 'Risultati esportati con successo',
+    logNoResults: 'Nessun risultato da salvare',
+    logSaveSuccess: 'Workflow salvato nello storico',
+    logSaveError: 'Errore salvataggio: {error}',
+    logLoadedFromHistory: 'Workflow caricato dallo storico',
   },
   en: {
     // Header
@@ -352,6 +378,32 @@ export const translations = {
     loading: 'Loading',
     exportCurrentResults: 'Export Results',
     saveToHistory: 'Save to History',
+
+    // Log messages
+    logLoadingInvoices: 'Loading {count} invoices...',
+    logInvoicesLoaded: 'Loaded {count} invoices to database',
+    logError: 'Error: {error}',
+    logWorkflowStart: 'Starting workflow with real AI...',
+    logProviderInfo: 'Provider: {provider} | Model: {model}',
+    logAnalysisStart: 'Starting invoice analysis with AI...',
+    logAnalysisComplete: 'Analysis completed ({tokens} tokens)',
+    logOverdueFound: 'Found {count} overdue invoices',
+    logGeneratingMessages: 'Generating messages with AI...',
+    logMessagesGenerated: 'Generated {count} messages',
+    logMessageFor: '{channel} for {customer}',
+    logWaitingResponses: 'Simulating response wait...',
+    logResponseReceived: 'Simulated response received',
+    logAnalyzingResponse: 'Analyzing response with AI...',
+    logIntentDetected: 'Intent: {intent} ({confidence}%)',
+    logSentimentDetected: 'Sentiment: {sentiment}',
+    logRiskDetected: 'Risk: {risk}',
+    logWorkflowComplete: 'Workflow completed successfully!',
+    logProviderChanged: 'Provider changed: {provider}',
+    logExportSuccess: 'Results exported successfully',
+    logNoResults: 'No results to save',
+    logSaveSuccess: 'Workflow saved to history',
+    logSaveError: 'Save error: {error}',
+    logLoadedFromHistory: 'Workflow loaded from history',
   },
 } as const;
 
@@ -362,6 +414,26 @@ export function useTranslation(language: Language) {
   const dict = translations[lang] || translations.it;
   return {
     t: (key: TranslationKey): string => dict[key] || key,
+    // Template function for messages with parameters like {count}, {name}
+    tf: (key: TranslationKey, params: Record<string, string | number>): string => {
+      let text = dict[key] || key;
+      Object.entries(params).forEach(([k, v]) => {
+        text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      });
+      return text;
+    },
     language: lang,
   };
+}
+
+// Standalone format function for use outside of React hooks
+export function formatMessage(language: Language, key: TranslationKey, params?: Record<string, string | number>): string {
+  const dict = translations[language] || translations.it;
+  let text = dict[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+    });
+  }
+  return text;
 }
