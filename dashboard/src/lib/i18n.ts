@@ -164,6 +164,18 @@ export const translations = {
     extractedInfoLabel: 'Informazioni Estratte:',
     suggestedActionsLabel: 'Azioni Suggerite:',
     draftResponseLabel: 'Bozza Risposta Suggerita:',
+
+    // Workflow History
+    workflowHistory: 'Storico Workflow',
+    savedRuns: 'esecuzioni salvate',
+    noSavedRuns: 'Nessuna esecuzione salvata',
+    loadRun: 'Carica esecuzione',
+    exportRun: 'Esporta',
+    deleteRun: 'Elimina',
+    confirmDeleteRun: 'Sei sicuro di voler eliminare questa esecuzione?',
+    loading: 'Caricamento',
+    exportCurrentResults: 'Esporta Risultati',
+    saveToHistory: 'Salva nello Storico',
   },
   en: {
     // Header
@@ -328,6 +340,18 @@ export const translations = {
     extractedInfoLabel: 'Extracted Information:',
     suggestedActionsLabel: 'Suggested Actions:',
     draftResponseLabel: 'Suggested Draft Response:',
+
+    // Workflow History
+    workflowHistory: 'Workflow History',
+    savedRuns: 'saved runs',
+    noSavedRuns: 'No saved runs',
+    loadRun: 'Load run',
+    exportRun: 'Export',
+    deleteRun: 'Delete',
+    confirmDeleteRun: 'Are you sure you want to delete this run?',
+    loading: 'Loading',
+    exportCurrentResults: 'Export Results',
+    saveToHistory: 'Save to History',
   },
 } as const;
 

@@ -14,12 +14,15 @@ import AnalysisReport from '@/components/AnalysisReport';
 import GeneratedMessages from '@/components/GeneratedMessages';
 import ResponseAnalysis from '@/components/ResponseAnalysis';
 import SettingsModal, { AISettings } from '@/components/SettingsModal';
+import WorkflowHistory from '@/components/WorkflowHistory';
+import { Download, Save } from 'lucide-react';
 import { Invoice } from '@/types';
 
 export default function Dashboard() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const {
     agents,
@@ -318,6 +321,125 @@ export default function Dashboard() {
     addLog({ agent: 'Sistema', message: `Provider cambiato: ${settings.provider}`, type: 'info' });
   }, [setAISettings, addLog]);
 
+  // Export current results to JSON
+  const handleExportResults = useCallback(() => {
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      aiProvider: aiSettings.provider,
+      aiModel: aiSettings.model,
+      stats: analysisResult,
+      analysisReport: analysisReportContent,
+      generatedMessages,
+      responseAnalysis,
+      invoices,
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `paymind-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    addLog({ agent: 'Sistema', message: 'Risultati esportati con successo', type: 'success' });
+  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, addLog]);
+
+  // Save current workflow run to history
+  const handleSaveToHistory = useCallback(async () => {
+    if (!analysisResult) {
+      addLog({ agent: 'Sistema', message: 'Nessun risultato da salvare', type: 'warning' });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/workflow-runs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'completed',
+          totalInvoices: analysisResult.totalInvoices,
+          overdueInvoices: analysisResult.overdueInvoices,
+          totalCredits: analysisResult.totalCredits,
+          overdueAmount: analysisResult.overdueAmount,
+          messagesGenerated: generatedMessages.length,
+          aiProvider: aiSettings.provider,
+          aiModel: aiSettings.model,
+          analysisReport: analysisReportContent,
+          generatedMessages,
+          responseAnalysis,
+          invoicesSnapshot: invoices,
+          logs: logs.map(log => ({ agent: log.agent, message: log.message, type: log.type })),
+        }),
+      });
+
+      if (response.ok) {
+        addLog({ agent: 'Sistema', message: 'Workflow salvato nello storico', type: 'success' });
+        setHistoryRefresh(prev => prev + 1);
+      } else {
+        throw new Error('Failed to save workflow');
+      }
+    } catch (error) {
+      addLog({ agent: 'Sistema', message: `Errore salvataggio: ${error}`, type: 'error' });
+    }
+  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, logs, addLog]);
+
+  // Load a workflow run from history
+  const handleLoadRun = useCallback((run: {
+    analysisReport: string | null;
+    generatedMessages: string | null;
+    responseAnalysis: string | null;
+    invoicesSnapshot: string | null;
+    totalInvoices: number;
+    overdueInvoices: number;
+    totalCredits: number;
+    overdueAmount: number;
+  }) => {
+    // Restore analysis result
+    setAnalysisResult({
+      totalInvoices: run.totalInvoices,
+      overdueInvoices: run.overdueInvoices,
+      totalCredits: run.totalCredits,
+      overdueAmount: run.overdueAmount,
+    });
+
+    // Restore analysis report content
+    if (run.analysisReport) {
+      setAnalysisReportContent(run.analysisReport);
+      setShowAnalysisReport(true);
+    }
+
+    // Restore generated messages
+    if (run.generatedMessages) {
+      const messages = typeof run.generatedMessages === 'string'
+        ? JSON.parse(run.generatedMessages)
+        : run.generatedMessages;
+      setGeneratedMessages(messages);
+      setShowGeneratedMessages(true);
+    }
+
+    // Restore response analysis
+    if (run.responseAnalysis) {
+      const analysis = typeof run.responseAnalysis === 'string'
+        ? JSON.parse(run.responseAnalysis)
+        : run.responseAnalysis;
+      setResponseAnalysis(analysis);
+      setShowResponseAnalysis(true);
+    }
+
+    // Restore invoices
+    if (run.invoicesSnapshot) {
+      const invs = typeof run.invoicesSnapshot === 'string'
+        ? JSON.parse(run.invoicesSnapshot)
+        : run.invoicesSnapshot;
+      setInvoices(invs);
+    }
+
+    addLog({ agent: 'Sistema', message: 'Workflow caricato dallo storico', type: 'info' });
+  }, [setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, setInvoices, addLog]);
+
   return (
     <div className="min-h-screen">
       <Header
@@ -358,10 +480,15 @@ export default function Dashboard() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Left Column - Workflow & Logs */}
+          {/* Left Column - Workflow, Logs & History */}
           <div className="space-y-6">
             <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
             <LogsPanel logs={logs} onClear={clearLogs} language={language} />
+            <WorkflowHistory
+              language={language}
+              onLoadRun={handleLoadRun}
+              refreshTrigger={historyRefresh}
+            />
           </div>
 
           {/* Right Column - Invoices Table */}
@@ -379,7 +506,25 @@ export default function Dashboard() {
         {/* Agent Outputs Section */}
         {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
           <div className="mb-8">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('agentOutputs')}</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('agentOutputs')}</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportResults}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  {t('exportCurrentResults')}
+                </button>
+                <button
+                  onClick={handleSaveToHistory}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  {t('saveToHistory')}
+                </button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <AnalysisReport
                 result={analysisResult}

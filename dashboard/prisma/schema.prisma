@@ -57,12 +57,20 @@ model ResponseAnalysis {
 
 model WorkflowRun {
   id              String   @id @default(cuid())
+  name            String?  // Optional name for the run
   status          String   // running, completed, failed
   totalInvoices   Int
   overdueInvoices Int
   totalCredits    Float
   overdueAmount   Float
   messagesGenerated Int
+  aiProvider      String?
+  aiModel         String?
+  // Full content storage
+  analysisReport  String?  // Full AI analysis report text
+  generatedMessages String? // JSON array of generated messages
+  responseAnalysis String?  // JSON object with response analysis
+  invoicesSnapshot String?  // JSON array of invoices at time of run
   startedAt       DateTime @default(now())
   completedAt     DateTime?
   logs            WorkflowLog[]
