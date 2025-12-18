@@ -43,7 +43,9 @@
 | 📧 **Multi-Canale** | Genera messaggi per Email, SMS e WhatsApp |
 | 💬 **NLP Avanzato** | Analizza risposte con intent recognition e sentiment analysis |
 | 🎨 **Dashboard Moderna** | Interfaccia Next.js per visualizzare workflow in tempo reale |
-| 💾 **Persistenza Dati** | LocalStorage per mantenere stato tra sessioni |
+| 🔌 **Multi-Provider AI** | Supporta Anthropic, OpenAI, OpenRouter e Google Gemini |
+| 🗄️ **Database SQLite** | Persistenza dati con Prisma ORM |
+| ⚙️ **Configurabile** | Selezione provider e modello AI direttamente dalla dashboard |
 
 ### 🤖 Gli Agenti
 
@@ -154,7 +156,10 @@ FAT-2025-001,ACME SpA,2450.00,0.00,2025-09-15,open,email,contabilita@acme.it,+39
 | 📧 **Multi-Channel** | Generates messages for Email, SMS, and WhatsApp |
 | 💬 **Advanced NLP** | Analyzes responses with intent recognition and sentiment analysis |
 | 🎨 **Modern Dashboard** | Next.js interface for real-time workflow visualization |
-| 💾 **Data Persistence** | LocalStorage to maintain state between sessions |
+| 🔌 **Multi-Provider AI** | Supports Anthropic, OpenAI, OpenRouter, and Google Gemini |
+| 🗄️ **SQLite Database** | Data persistence with Prisma ORM |
+| 🌙 **Dark/Light Mode** | Toggle between dark and light themes |
+| 🌍 **Bilingual** | Full support for Italian and English |
 
 ### 🤖 The Agents
 
@@ -209,11 +214,12 @@ claude "response-handler-agent: analyze this response: [text]"
 
 | Technology | Purpose |
 |------------|---------|
-| **Claude Sonnet 4** | AI Agent Engine |
+| **Multi-Provider AI** | Claude, GPT, Gemini via OpenRouter |
 | **Next.js 16** | Dashboard Framework |
 | **TypeScript** | Type Safety |
-| **Tailwind CSS** | Styling |
+| **Tailwind CSS** | Styling + Dark Mode |
 | **Zustand** | State Management |
+| **Prisma + SQLite** | Database |
 | **Lucide React** | Icons |
 
 ### 📊 Priority Levels
@@ -235,8 +241,10 @@ claude "response-handler-agent: analyze this response: [text]"
 
 ## 📈 Roadmap
 
-- [ ] Real Claude API integration in dashboard
-- [ ] SQLite/PostgreSQL database
+- [x] Real AI API integration in dashboard (Multi-provider)
+- [x] SQLite database with Prisma
+- [x] Dark/Light mode toggle
+- [x] Bilingual support (IT/EN)
 - [ ] Email sending via SMTP
 - [ ] WhatsApp Business API integration
 - [ ] PDF report export

@@ -48,6 +48,27 @@ interface AppState {
   isWorkflowRunning: boolean;
   setWorkflowRunning: (running: boolean) => void;
 
+  // AI Settings
+  aiSettings: {
+    provider: string;
+    model: string;
+    apiKey?: string;
+  };
+  setAISettings: (settings: { provider: string; model: string; apiKey?: string }) => void;
+
+  // Analysis report content
+  analysisReportContent: string | null;
+  setAnalysisReportContent: (content: string | null) => void;
+
+  // Theme
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
+
+  // Language
+  language: 'it' | 'en';
+  setLanguage: (lang: 'it' | 'en') => void;
+
   // Reset all
   resetAll: () => void;
 }
@@ -154,6 +175,26 @@ export const useAppStore = create<AppState>()(
   isWorkflowRunning: false,
   setWorkflowRunning: (running) => set({ isWorkflowRunning: running }),
 
+  // AI Settings
+  aiSettings: {
+    provider: 'openrouter',
+    model: 'anthropic/claude-sonnet-4',
+  },
+  setAISettings: (settings) => set({ aiSettings: settings }),
+
+  // Analysis report content
+  analysisReportContent: null,
+  setAnalysisReportContent: (content) => set({ analysisReportContent: content }),
+
+  // Theme
+  theme: 'light',
+  setTheme: (theme) => set({ theme }),
+  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+
+  // Language
+  language: 'it',
+  setLanguage: (language) => set({ language }),
+
   // Reset all
   resetAll: () => set({
     invoices: [],
@@ -208,6 +249,10 @@ export const useAppStore = create<AppState>()(
         showAnalysisReport: state.showAnalysisReport,
         showGeneratedMessages: state.showGeneratedMessages,
         showResponseAnalysis: state.showResponseAnalysis,
+        aiSettings: state.aiSettings,
+        analysisReportContent: state.analysisReportContent,
+        theme: state.theme,
+        language: state.language,
       }),
     }
   )

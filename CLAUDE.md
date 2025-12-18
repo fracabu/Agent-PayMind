@@ -4,55 +4,95 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PayMind is an AI-powered payment reminder system that uses Claude Code agents to automate invoice collection workflows. The system operates entirely through CLI agents - there is no Python code or web application.
+PayMind is an AI-powered payment reminder system with two interfaces:
+1. **CLI Agents** - Three specialized Claude Code agents for invoice analysis, message generation, and response handling
+2. **Next.js Dashboard** - Web interface for visualizing workflows and managing invoices with real AI integration
 
 ## Architecture
 
-The system consists of three specialized Claude Code agents defined in `.claude/agents/`:
+### Agent Workflow
 
-1. **payment-monitor-agent** - Analyzes CSV invoice files, identifies overdue/upcoming invoices, calculates days late, and segments by priority (ALTA/MEDIA/BASSA)
+```
+CSV Upload → [Payment Monitor] → Analysis Report
+                    ↓
+            [Reminder Generator] → Email/SMS/WhatsApp messages
+                    ↓
+            [Response Handler] → Intent analysis + Suggested actions
+```
 
-2. **reminder-generator-agent** - Generates personalized reminder messages adapted for each channel (Email, SMS, WhatsApp) with appropriate tone based on priority and days overdue
+### CLI Agents (`.claude/agents/`)
 
-3. **response-handler-agent** - Analyzes customer responses, identifies intent (payment_confirmed, dispute, request_delay, etc.), performs sentiment analysis, and suggests follow-up actions
+| Agent | Purpose | Output |
+|-------|---------|--------|
+| **payment-monitor-agent** | Analyzes CSV, identifies overdue invoices, calculates priority | Report with metrics and segmentation |
+| **reminder-generator-agent** | Generates personalized messages for Email/SMS/WhatsApp | Channel-appropriate reminder messages |
+| **response-handler-agent** | Analyzes customer responses, identifies intent | Actions + draft response |
 
-## Agent Usage
+### Dashboard (`dashboard/`)
 
-Invoke agents from Claude Code CLI:
+Next.js 16 application with App Router:
+- **State**: Zustand store with localStorage persistence (`src/lib/store.ts`)
+- **Database**: Prisma with SQLite (`prisma/schema.prisma`)
+- **AI Integration**: Multi-provider abstraction via `callAI()` (`src/lib/ai-providers.ts`)
+- **API Routes**: REST endpoints for each agent (`src/app/api/agents/*/route.ts`)
+
+### Data Flow
+
+1. **Frontend** → Zustand store manages UI state (agents, invoices, workflow steps, logs)
+2. **API Routes** → Fetch invoices from Prisma DB, call AI provider, return analysis
+3. **AI Providers** → Unified interface supporting Anthropic, OpenAI, OpenRouter, Gemini
+
+## Commands
 
 ```bash
-# Analyze invoices
-"payment-monitor-agent: analizza invoices.csv e dammi report"
+# Dashboard development
+cd dashboard
+npm install
+npm run dev          # Start dev server at localhost:3000
+npm run build        # Production build
+npm run lint         # ESLint
 
-# Generate reminder message
-"reminder-generator-agent: genera email per FAT-2025-001"
+# Database setup
+npx prisma db push   # Apply schema to SQLite
+npx prisma studio    # Database GUI
 
-# Analyze customer response
-"response-handler-agent: analizza questa risposta: [paste text]"
+# CLI agent invocation
+claude "payment-monitor-agent: analizza invoices.csv"
+claude "reminder-generator-agent: genera email per FAT-2025-001"
+claude "response-handler-agent: analizza questa risposta: [text]"
 ```
+
+## Environment Variables
+
+Create `dashboard/.env`:
+```
+DATABASE_URL="file:./dev.db"
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...           # Optional
+OPENROUTER_API_KEY=...          # Optional
+GEMINI_API_KEY=...              # Optional
+```
+
+## Priority Calculation
+
+| Priority | Criteria |
+|----------|----------|
+| **ALTA** | >90 days overdue OR amount >1,000 OR disputed status |
+| **MEDIA** | 60-90 days overdue |
+| **BASSA** | <60 days overdue |
 
 ## CSV Invoice Format
 
-Required columns in invoice CSV files:
-- `invoice_id` - Unique identifier (e.g., FAT-2025-001)
-- `customer_name` - Company/customer name
-- `amount_total` - Total invoice amount
-- `amount_paid` - Amount already paid
-- `due_date` - Due date (YYYY-MM-DD)
-- `status` - open, paid, or disputed
-- `preferred_channel` - email, sms, or whatsapp
-- `customer_email` - Customer email address
-- `customer_phone` - Phone with international prefix
+Required columns: `invoice_id`, `customer_name`, `amount_total`, `amount_paid`, `due_date`, `status` (open/paid/disputed), `preferred_channel` (email/sms/whatsapp), `customer_email`, `customer_phone`
 
-## Output Files
+## Key Files
 
-Agents generate text files in the project root:
-- `email_*.txt` - Generated email messages
-- `reminder_*.txt` - Other reminder messages
-- `response_analysis_*.txt` - Response analysis reports
-
-These output files are excluded from git via `.gitignore`.
+- `dashboard/src/lib/ai-providers.ts` - Multi-provider AI abstraction with `callAI()` function
+- `dashboard/src/lib/agents.ts` - System prompts for each agent (PAYMENT_MONITOR_PROMPT, REMINDER_GENERATOR_PROMPT, RESPONSE_HANDLER_PROMPT)
+- `dashboard/src/lib/store.ts` - Global state including `aiSettings` for provider/model selection
+- `dashboard/src/types/index.ts` - TypeScript interfaces for Agent, Invoice, LogEntry, WorkflowStep
+- `dashboard/prisma/schema.prisma` - Database models: Invoice, Message, ResponseAnalysis, WorkflowRun
 
 ## Language
 
-The system is designed for Italian business communications. Agent prompts, generated messages, and documentation use Italian.
+Italian business communications. Agent prompts and generated messages use Italian.

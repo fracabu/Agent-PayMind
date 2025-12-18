@@ -44,8 +44,8 @@ export default function ResponseAnalysis({ analysis, isVisible }: ResponseAnalys
   if (!isVisible || !analysis) return null;
 
   const intent = intentLabels[analysis.intent] || { label: analysis.intent, icon: <MessageCircle className="w-4 h-4" />, color: 'text-gray-500' };
-  const sentiment = sentimentConfig[analysis.sentiment];
-  const risk = riskConfig[analysis.riskLevel];
+  const sentiment = sentimentConfig[analysis.sentiment] || sentimentConfig.neutral;
+  const risk = riskConfig[analysis.riskLevel] || riskConfig.medium;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

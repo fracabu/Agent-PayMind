@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceId       String   @unique
+  customerName    String
+  amountTotal     Float
+  amountPaid      Float
+  dueDate         DateTime
+  status          String   // open, paid, disputed
+  preferredChannel String  // email, sms, whatsapp
+  customerEmail   String
+  customerPhone   String
+  daysOverdue     Int?
+  priority        String?  // ALTA, MEDIA, BASSA
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  messages        Message[]
+  responseAnalyses ResponseAnalysis[]
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [invoiceId])
+  channel       String   // email, sms, whatsapp
+  subject       String?
+  content       String
+  priority      String
+  status        String   @default("draft") // draft, sent, delivered, failed
+  createdAt     DateTime @default(now())
+  sentAt        DateTime?
+}
+
+model ResponseAnalysis {
+  id               String   @id @default(cuid())
+  invoiceId        String
+  invoice          Invoice  @relation(fields: [invoiceId], references: [invoiceId])
+  customerMessage  String
+  intent           String
+  intentConfidence Float
+  sentiment        String   // positive, neutral, negative
+  extractedInfo    String   // JSON string
+  suggestedActions String   // JSON string
+  draftResponse    String
+  riskLevel        String   // low, medium, high
+  createdAt        DateTime @default(now())
+}
+
+model WorkflowRun {
+  id              String   @id @default(cuid())
+  status          String   // running, completed, failed
+  totalInvoices   Int
+  overdueInvoices Int
+  totalCredits    Float
+  overdueAmount   Float
+  messagesGenerated Int
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  logs            WorkflowLog[]
+}
+
+model WorkflowLog {
+  id          String   @id @default(cuid())
+  workflowId  String
+  workflow    WorkflowRun @relation(fields: [workflowId], references: [id])
+  agent       String
+  message     String
+  type        String   // info, success, warning, error
+  timestamp   DateTime @default(now())
+}
