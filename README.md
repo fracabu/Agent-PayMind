@@ -195,7 +195,7 @@ GEMINI_API_KEY=...              # Opzionale
 
 | Risorsa | Descrizione |
 |---|---|
-| 🎧 [**NotebookLM Audio Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | Riassunto audio AI-generated di PayMind |
+| 🎧 [**NotebookLM Video Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | Video riassunto AI-generated di PayMind |
 
 ---
 
@@ -350,7 +350,7 @@ GEMINI_API_KEY=...              # Optional
 
 | Resource | Description |
 |---|---|
-| 🎧 [**NotebookLM Audio Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | AI-generated audio summary of PayMind |
+| 🎧 [**NotebookLM Video Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | AI-generated video summary of PayMind |
 
 ---
 
