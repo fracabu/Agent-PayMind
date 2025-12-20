@@ -27,6 +27,7 @@
 </p>
 
 ---
+<img width="1600" height="739" alt="image" src="https://github.com/user-attachments/assets/2b7dfc20-8fc5-45ad-9eb0-13ba9422d060" />
 
 ## 🇮🇹 Italiano
 
