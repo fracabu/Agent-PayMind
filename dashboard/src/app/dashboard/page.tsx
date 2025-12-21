@@ -833,7 +833,7 @@ export default function Dashboard() {
         onToggleLanguage={handleToggleLanguage}
       />
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-12 sm:pb-16">
         {/* Stats */}
         <div className="mb-6 sm:mb-8">
           <StatsCards result={analysisResult} language={language} />

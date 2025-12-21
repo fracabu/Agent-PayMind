@@ -138,14 +138,6 @@ export default function HeroPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 sm:pt-40 pb-20">
           {/* Main Content */}
           <div className="text-center max-w-4xl mx-auto">
-            {/* Logo Mark */}
-            <div className="flex justify-center mb-8 animate-fade-in">
-              <div className="flex items-center gap-3">
-                <PayMindIcon className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
-                <span className="text-2xl font-semibold text-gray-900 dark:text-white">PayMind</span>
-              </div>
-            </div>
-
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-slide-up">
               <span className="text-indigo-600 dark:text-indigo-400">{content.headline1}</span>
@@ -251,7 +243,7 @@ export default function HeroPage() {
         </div>
 
         {/* Footer */}
-        <footer className="py-8 border-t border-gray-100 dark:border-gray-800">
+        <footer className="py-8 pb-12 border-t border-gray-100 dark:border-gray-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2">
