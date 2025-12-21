@@ -27,6 +27,11 @@
 </p>
 
 ---
+<img width="1600" height="739" alt="image" src="https://github.com/user-attachments/assets/2b7dfc20-8fc5-45ad-9eb0-13ba9422d060" />
+<img width="1600" height="740" alt="image" src="https://github.com/user-attachments/assets/058691c0-11e3-47db-a561-77d0c51776ea" />
+<img width="1599" height="819" alt="image" src="https://github.com/user-attachments/assets/f8afe620-42bc-4a94-999d-b285b2167238" />
+<img width="1600" height="740" alt="image" src="https://github.com/user-attachments/assets/338a5554-2f47-4d90-81fa-7cd2e7ee1440" />
+
 
 ## 🇮🇹 Italiano
 
@@ -191,6 +196,14 @@ GEMINI_API_KEY=...              # Opzionale
 
 ---
 
+### 🎬 Media & Risorse
+
+| Risorsa | Descrizione |
+|---|---|
+| 🎧 [**NotebookLM Video Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | Video riassunto AI-generated di PayMind |
+
+---
+
 ## 🇬🇧 English
 
 ### Overview
@@ -337,6 +350,14 @@ GEMINI_API_KEY=...              # Optional
 - [ ] WhatsApp Business API integration
 - [ ] PDF report export
 - [ ] Multi-tenant support
+
+## 🎬 Media & Resources
+
+| Resource | Description |
+|---|---|
+| 🎧 [**NotebookLM Video Overview**](https://notebooklm.google.com/notebook/5137e938-dc42-4bfd-9c8c-3b3a4de50193?artifactId=e042bce1-ef43-45e5-bb7b-cbec17b9b001) | AI-generated video summary of PayMind |
+
+---
 
 ## 🤝 Contributing
 
