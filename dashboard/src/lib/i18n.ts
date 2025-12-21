@@ -450,7 +450,7 @@ export function useTranslation(language: Language) {
     t: (key: TranslationKey): string => dict[key] || key,
     // Template function for messages with parameters like {count}, {name}
     tf: (key: TranslationKey, params: Record<string, string | number>): string => {
-      let text = dict[key] || key;
+      let text: string = dict[key] || key;
       Object.entries(params).forEach(([k, v]) => {
         text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
       });
@@ -463,7 +463,7 @@ export function useTranslation(language: Language) {
 // Standalone format function for use outside of React hooks
 export function formatMessage(language: Language, key: TranslationKey, params?: Record<string, string | number>): string {
   const dict = translations[language] || translations.it;
-  let text = dict[key] || key;
+  let text: string = dict[key] || key;
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));

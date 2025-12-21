@@ -1,6 +1,7 @@
 'use client';
 
-import { Upload, Play, RotateCcw, Settings, Database, Sun, Moon, Globe, Square } from 'lucide-react';
+import Link from 'next/link';
+import { Upload, Play, RotateCcw, Settings, Database, Sun, Moon, Globe, Square, Home } from 'lucide-react';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface HeaderProps {
@@ -49,11 +50,13 @@ export default function Header({
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-2xl sm:text-3xl">💰</span>
-            <div>
-              <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
-              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden xs:block">{t('appDescription')}</p>
-            </div>
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity" title="Home">
+              <span className="text-2xl sm:text-3xl">💰</span>
+              <div>
+                <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden xs:block">{t('appDescription')}</p>
+              </div>
+            </Link>
           </div>
 
           {/* Center - Status */}

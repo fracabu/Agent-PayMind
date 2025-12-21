@@ -1,74 +1,31 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAppStore } from '@/lib/store';
-import { useTranslation, formatMessage, Language } from '@/lib/i18n';
-import Header from '@/components/Header';
-import AgentCard from '@/components/AgentCard';
-import WorkflowTimeline from '@/components/WorkflowTimeline';
-import InvoicesTable from '@/components/InvoicesTable';
-import LogsPanel from '@/components/LogsPanel';
-import StatsCards from '@/components/StatsCards';
-import FileUpload from '@/components/FileUpload';
-import AnalysisReport from '@/components/AnalysisReport';
-import GeneratedMessages from '@/components/GeneratedMessages';
-import ResponseAnalysis from '@/components/ResponseAnalysis';
-import SettingsModal, { AISettings } from '@/components/SettingsModal';
-import WorkflowHistory from '@/components/WorkflowHistory';
-import { Download, Save, Copy, Check, FileText } from 'lucide-react';
-import { Invoice } from '@/types';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import {
+  ArrowRight,
+  Brain,
+  Mail,
+  MessageSquare,
+  Zap,
+  Shield,
+  BarChart3,
+  Bot,
+  Sparkles,
+  ChevronRight,
+  Sun,
+  Moon,
+  Globe
+} from 'lucide-react';
 
-export default function Dashboard() {
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [historyRefresh, setHistoryRefresh] = useState(0);
-  const [reportCopied, setReportCopied] = useState(false);
-
-  // AbortController for stopping workflow
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const {
-    agents,
-    setAgentStatus,
-    invoices,
-    setInvoices,
-    logs,
-    addLog,
-    clearLogs,
-    workflowSteps,
-    currentStep,
-    updateWorkflowStep,
-    analysisResult,
-    setAnalysisResult,
-    showAnalysisReport,
-    setShowAnalysisReport,
-    generatedMessages,
-    setGeneratedMessages,
-    showGeneratedMessages,
-    setShowGeneratedMessages,
-    responseAnalysis,
-    setResponseAnalysis,
-    showResponseAnalysis,
-    setShowResponseAnalysis,
-    isWorkflowRunning,
-    setWorkflowRunning,
-    aiSettings,
-    setAISettings,
-    analysisReportContent,
-    setAnalysisReportContent,
-    resetAll,
-    theme,
-    toggleTheme,
-    language,
-    setLanguage,
-  } = useAppStore();
+export default function HeroPage() {
+  const { theme, toggleTheme, language, setLanguage } = useAppStore();
+  const [mounted, setMounted] = useState(false);
 
   // Apply theme to document
   useEffect(() => {
-    console.log('Theme changed to:', theme);
+    setMounted(true);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -76,890 +33,312 @@ export default function Dashboard() {
     }
   }, [theme]);
 
-  const handleToggleLanguage = useCallback(() => {
+  const toggleLanguage = () => {
     setLanguage(language === 'it' ? 'en' : 'it');
-  }, [language, setLanguage]);
-
-  const { t } = useTranslation(language);
-
-  // Helper for translated log messages
-  const logMsg = useCallback((key: Parameters<typeof formatMessage>[1], params?: Record<string, string | number>) => {
-    return formatMessage(language, key, params);
-  }, [language]);
-
-  // Copy full AI report to clipboard
-  const handleCopyReport = useCallback(async () => {
-    if (analysisReportContent) {
-      await navigator.clipboard.writeText(analysisReportContent);
-      setReportCopied(true);
-      setTimeout(() => setReportCopied(false), 2000);
-    }
-  }, [analysisReportContent]);
-
-  // Generate professional PDF report
-  const handleExportPDF = useCallback(() => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    let yPos = 20;
-
-    // Professional color palette (muted, corporate)
-    const colors = {
-      primary: [30, 41, 59],      // Slate 800
-      secondary: [71, 85, 105],   // Slate 500
-      light: [241, 245, 249],     // Slate 100
-      border: [203, 213, 225],    // Slate 300
-      text: [51, 65, 85],         // Slate 700
-      muted: [148, 163, 184],     // Slate 400
-      accent: [59, 130, 246],     // Blue 500 (subtle accent)
-    };
-
-    // Helper functions
-    const addSectionTitle = (text: string) => {
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-      doc.text(text.toUpperCase(), 14, yPos);
-      yPos += 3;
-      doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
-      doc.setLineWidth(0.3);
-      doc.line(14, yPos, pageWidth - 14, yPos);
-      yPos += 8;
-    };
-
-    const checkPageBreak = (needed: number = 40) => {
-      if (yPos > pageHeight - needed) {
-        doc.addPage();
-        yPos = 20;
-      }
-    };
-
-    const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en-US', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(amount);
-    };
-
-    // Translate priority based on language
-    const translatePriority = (priority: string | undefined): string => {
-      if (!priority) return 'N/A';
-      const upperPriority = priority.toUpperCase();
-      if (language === 'en') {
-        if (upperPriority === 'ALTA') return 'HIGH';
-        if (upperPriority === 'MEDIA') return 'MEDIUM';
-        if (upperPriority === 'BASSA') return 'LOW';
-      }
-      return upperPriority;
-    };
-
-    // === HEADER (minimal, professional) ===
-    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-    doc.rect(0, 0, pageWidth, 28, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PayMind', 14, 14);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(language === 'it' ? 'Report Analisi Crediti' : 'Credit Analysis Report', 14, 22);
-
-    // Date on right
-    doc.setFontSize(8);
-    doc.text(new Date().toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US'), pageWidth - 14, 14, { align: 'right' });
-    doc.text(`${aiSettings.provider} / ${aiSettings.model}`, pageWidth - 14, 22, { align: 'right' });
-
-    doc.setTextColor(0, 0, 0);
-    yPos = 38;
-
-    if (analysisResult) {
-      // === EXECUTIVE SUMMARY (table format, professional) ===
-      addSectionTitle(language === 'it' ? 'Riepilogo Esecutivo' : 'Executive Summary');
-
-      const overdueInvoicesList = invoices.filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0);
-      const avgDays = overdueInvoicesList.length > 0
-        ? Math.round(overdueInvoicesList.reduce((sum, inv) => sum + (inv.days_overdue || 0), 0) / overdueInvoicesList.length)
-        : 0;
-      const overduePercent = analysisResult.totalCredits > 0
-        ? ((analysisResult.overdueAmount / analysisResult.totalCredits) * 100).toFixed(1)
-        : '0';
-
-      autoTable(doc, {
-        startY: yPos,
-        head: [],
-        body: [
-          [language === 'it' ? 'Fatture Analizzate' : 'Invoices Analyzed', String(analysisResult.totalInvoices)],
-          [language === 'it' ? 'Fatture Scadute' : 'Overdue Invoices', String(analysisResult.overdueInvoices)],
-          [language === 'it' ? 'Ritardo Medio' : 'Average Delay', `${avgDays} ${language === 'it' ? 'giorni' : 'days'}`],
-          [language === 'it' ? 'Crediti Totali' : 'Total Credits', formatCurrency(analysisResult.totalCredits)],
-          [language === 'it' ? 'Importo Scaduto' : 'Overdue Amount', formatCurrency(analysisResult.overdueAmount)],
-          [language === 'it' ? 'Percentuale Scaduto' : 'Overdue Percentage', `${overduePercent}%`],
-        ],
-        theme: 'plain',
-        styles: {
-          fontSize: 9,
-          cellPadding: 4,
-        },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 60, textColor: colors.secondary },
-          1: { halign: 'left', textColor: colors.text },
-        },
-        margin: { left: 14, right: 14 },
-      });
-      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
-
-      // === PRIORITY BREAKDOWN (simple table) ===
-      checkPageBreak(50);
-      addSectionTitle(language === 'it' ? 'Segmentazione per Priorita' : 'Priority Breakdown');
-
-      autoTable(doc, {
-        startY: yPos,
-        head: [[
-          language === 'it' ? 'Priorita' : 'Priority',
-          language === 'it' ? 'N. Fatture' : 'Invoices',
-          '%'
-        ]],
-        body: [
-          [language === 'it' ? 'Alta' : 'High', String(analysisResult.byPriority.alta), `${((analysisResult.byPriority.alta / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
-          [language === 'it' ? 'Media' : 'Medium', String(analysisResult.byPriority.media), `${((analysisResult.byPriority.media / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
-          [language === 'it' ? 'Bassa' : 'Low', String(analysisResult.byPriority.bassa), `${((analysisResult.byPriority.bassa / Math.max(analysisResult.totalInvoices, 1)) * 100).toFixed(0)}%`],
-        ],
-        theme: 'striped',
-        headStyles: {
-          fillColor: colors.primary,
-          textColor: 255,
-          fontStyle: 'bold',
-          fontSize: 9,
-        },
-        bodyStyles: {
-          fontSize: 9,
-        },
-        alternateRowStyles: {
-          fillColor: colors.light,
-        },
-        columnStyles: {
-          1: { halign: 'center' },
-          2: { halign: 'center' },
-        },
-        margin: { left: 14, right: 14 },
-        tableWidth: 100,
-      });
-      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
-    }
-
-    // === INVOICES TABLE ===
-    if (invoices.length > 0) {
-      checkPageBreak(60);
-      addSectionTitle(language === 'it' ? 'Dettaglio Fatture Scadute' : 'Overdue Invoices Detail');
-
-      const overdueInvoices = invoices
-        .filter(inv => inv.status === 'open' && (inv.days_overdue || 0) > 0)
-        .sort((a, b) => (b.days_overdue || 0) - (a.days_overdue || 0));
-
-      if (overdueInvoices.length > 0) {
-        autoTable(doc, {
-          startY: yPos,
-          head: [[
-            'ID',
-            language === 'it' ? 'Cliente' : 'Customer',
-            language === 'it' ? 'Importo' : 'Amount',
-            language === 'it' ? 'Giorni' : 'Days',
-            language === 'it' ? 'Priorita' : 'Priority'
-          ]],
-          body: overdueInvoices.map(inv => [
-            inv.invoice_id,
-            inv.customer_name,
-            formatCurrency(inv.amount_total - inv.amount_paid),
-            String(inv.days_overdue || 0),
-            translatePriority(inv.priority)
-          ]),
-          theme: 'striped',
-          headStyles: {
-            fillColor: colors.primary,
-            textColor: 255,
-            fontStyle: 'bold',
-            fontSize: 9,
-          },
-          bodyStyles: {
-            fontSize: 8,
-          },
-          alternateRowStyles: {
-            fillColor: colors.light,
-          },
-          columnStyles: {
-            0: { cellWidth: 28 },
-            2: { halign: 'right' },
-            3: { halign: 'center', cellWidth: 20 },
-            4: { halign: 'center', cellWidth: 22 }
-          },
-          margin: { left: 14, right: 14 },
-        });
-        yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
-      }
-    }
-
-    // === GENERATED MESSAGES ===
-    if (generatedMessages.length > 0) {
-      checkPageBreak(60);
-      addSectionTitle(language === 'it' ? 'Messaggi Generati' : 'Generated Messages');
-
-      autoTable(doc, {
-        startY: yPos,
-        head: [[
-          language === 'it' ? 'Canale' : 'Channel',
-          language === 'it' ? 'Cliente' : 'Customer',
-          'ID',
-          language === 'it' ? 'Priorita' : 'Priority'
-        ]],
-        body: generatedMessages.map(msg => [
-          msg.channel.toUpperCase(),
-          msg.customer_name,
-          msg.invoice_id,
-          translatePriority(msg.priority)
-        ]),
-        theme: 'striped',
-        headStyles: {
-          fillColor: colors.secondary,
-          textColor: 255,
-          fontStyle: 'bold',
-          fontSize: 9,
-        },
-        bodyStyles: {
-          fontSize: 8,
-        },
-        alternateRowStyles: {
-          fillColor: colors.light,
-        },
-        columnStyles: {
-          0: { cellWidth: 22, halign: 'center' },
-          3: { halign: 'center', cellWidth: 22 }
-        },
-        margin: { left: 14, right: 14 },
-      });
-      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
-    }
-
-    // === RESPONSE ANALYSIS ===
-    if (responseAnalysis) {
-      checkPageBreak(60);
-      addSectionTitle(language === 'it' ? 'Analisi Risposta Cliente' : 'Customer Response Analysis');
-
-      const riskLevel = responseAnalysis.risk_level || 'medium';
-      const sentiment = responseAnalysis.sentiment || 'neutral';
-
-      autoTable(doc, {
-        startY: yPos,
-        head: [],
-        body: [
-          ['Intent', `${responseAnalysis.intent || 'N/A'} (${responseAnalysis.confidence || 0}%)`],
-          ['Sentiment', sentiment.charAt(0).toUpperCase() + sentiment.slice(1)],
-          [language === 'it' ? 'Livello Rischio' : 'Risk Level', riskLevel.toUpperCase()],
-        ],
-        theme: 'plain',
-        styles: {
-          fontSize: 9,
-          cellPadding: 4,
-        },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 40, textColor: colors.secondary },
-          1: { textColor: colors.text },
-        },
-        margin: { left: 14, right: 14 },
-      });
-      yPos = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
-
-      // Suggested actions
-      if (responseAnalysis.suggested_actions?.length > 0) {
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(colors.secondary[0], colors.secondary[1], colors.secondary[2]);
-        doc.text(language === 'it' ? 'Azioni Suggerite:' : 'Suggested Actions:', 14, yPos);
-        yPos += 6;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
-        responseAnalysis.suggested_actions.forEach((action: string, idx: number) => {
-          checkPageBreak(10);
-          doc.setFontSize(8);
-          doc.text(`${idx + 1}. ${action}`, 18, yPos);
-          yPos += 5;
-        });
-      }
-    }
-
-    // === FOOTER on all pages ===
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
-      doc.setLineWidth(0.2);
-      doc.line(14, pageHeight - 12, pageWidth - 14, pageHeight - 12);
-      doc.setFontSize(7);
-      doc.setTextColor(colors.muted[0], colors.muted[1], colors.muted[2]);
-      doc.text('PayMind - Credit Analysis Report', 14, pageHeight - 6);
-      doc.text(`${language === 'it' ? 'Pag.' : 'Page'} ${i}/${pageCount}`, pageWidth - 14, pageHeight - 6, { align: 'right' });
-    }
-
-    // Save PDF
-    doc.save(`paymind-report-${new Date().toISOString().split('T')[0]}.pdf`);
-    addLog({ agent: 'system', message: language === 'it' ? 'Report PDF esportato con successo' : 'PDF report exported successfully', type: 'success' });
-  }, [analysisResult, invoices, generatedMessages, responseAnalysis, aiSettings, language, addLog]);
-
-  const parseCSV = (text: string): Invoice[] => {
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',');
-
-    return lines.slice(1).map((line) => {
-      const values = line.split(',');
-      const invoice: Record<string, string | number> = {};
-
-      headers.forEach((header, index) => {
-        const key = header.trim();
-        const value = values[index]?.trim() || '';
-
-        if (key === 'amount_total' || key === 'amount_paid') {
-          invoice[key] = parseFloat(value) || 0;
-        } else {
-          invoice[key] = value;
-        }
-      });
-
-      return invoice as unknown as Invoice;
-    });
   };
 
-  const handleFileSelect = useCallback(async (file: File) => {
-    const text = await file.text();
-    const parsedInvoices = parseCSV(text);
+  const t = {
+    it: {
+      tagline: 'Powered by AI Agents',
+      headline: 'Solleciti di Pagamento',
+      headlineAccent: 'Intelligenti',
+      subheadline: 'Automatizza la gestione dei crediti con tre agenti AI specializzati che analizzano fatture, generano messaggi personalizzati e gestiscono le risposte dei clienti.',
+      cta: 'Apri Dashboard',
+      ctaSecondary: 'Scopri di più',
+      features: {
+        title: 'Come Funziona',
+        subtitle: 'Tre agenti AI lavorano in team per gestire l\'intero workflow',
+      },
+      agents: [
+        {
+          name: 'Payment Monitor',
+          description: 'Analizza fatture CSV, identifica scadute e calcola priorità automaticamente',
+          icon: BarChart3,
+        },
+        {
+          name: 'Reminder Generator',
+          description: 'Genera messaggi personalizzati per Email, SMS e WhatsApp',
+          icon: Mail,
+        },
+        {
+          name: 'Response Handler',
+          description: 'Analizza le risposte dei clienti con NLP e suggerisce azioni',
+          icon: MessageSquare,
+        },
+      ],
+      benefits: [
+        { text: 'Multi-Provider AI', icon: Brain },
+        { text: 'Analisi in Tempo Reale', icon: Zap },
+        { text: 'Report Automatici', icon: BarChart3 },
+        { text: 'Sicuro & Affidabile', icon: Shield },
+      ],
+      stats: [
+        { value: '3', label: 'Agenti AI' },
+        { value: '18+', label: 'Modelli AI' },
+        { value: '5', label: 'Modelli Gratis' },
+      ],
+      footer: 'Costruito con Claude Code AI',
+      video: {
+        title: 'Guarda la Demo',
+        subtitle: 'Scopri come PayMind automatizza la gestione dei crediti',
+        watchButton: 'Guarda il Video',
+      },
+    },
+    en: {
+      tagline: 'Powered by AI Agents',
+      headline: 'Smart Payment',
+      headlineAccent: 'Reminders',
+      subheadline: 'Automate credit management with three specialized AI agents that analyze invoices, generate personalized messages, and handle customer responses.',
+      cta: 'Open Dashboard',
+      ctaSecondary: 'Learn More',
+      features: {
+        title: 'How It Works',
+        subtitle: 'Three AI agents work as a team to manage the entire workflow',
+      },
+      agents: [
+        {
+          name: 'Payment Monitor',
+          description: 'Analyzes CSV invoices, identifies overdue and calculates priority automatically',
+          icon: BarChart3,
+        },
+        {
+          name: 'Reminder Generator',
+          description: 'Generates personalized messages for Email, SMS, and WhatsApp',
+          icon: Mail,
+        },
+        {
+          name: 'Response Handler',
+          description: 'Analyzes customer responses with NLP and suggests actions',
+          icon: MessageSquare,
+        },
+      ],
+      benefits: [
+        { text: 'Multi-Provider AI', icon: Brain },
+        { text: 'Real-Time Analysis', icon: Zap },
+        { text: 'Automatic Reports', icon: BarChart3 },
+        { text: 'Secure & Reliable', icon: Shield },
+      ],
+      stats: [
+        { value: '3', label: 'AI Agents' },
+        { value: '18+', label: 'AI Models' },
+        { value: '5', label: 'Free Models' },
+      ],
+      footer: 'Built with Claude Code AI',
+      video: {
+        title: 'Watch the Demo',
+        subtitle: 'See how PayMind automates credit management',
+        watchButton: 'Watch Video',
+      },
+    },
+  };
 
-    addLog({ agent: t('system'), message: logMsg('logLoadingInvoices', { count: parsedInvoices.length }), type: 'info' });
+  const content = t[language] || t.it;
 
-    try {
-      // Upload to database via API
-      const response = await fetch('/api/invoices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invoices: parsedInvoices }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload invoices');
-      }
-
-      const result = await response.json();
-
-      // Update local state with processed invoices from server
-      setInvoices(result.invoices.map((inv: Record<string, unknown>) => ({
-        invoice_id: inv.invoiceId,
-        customer_name: inv.customerName,
-        amount_total: inv.amountTotal,
-        amount_paid: inv.amountPaid,
-        due_date: inv.dueDate,
-        status: inv.status,
-        preferred_channel: inv.preferredChannel,
-        customer_email: inv.customerEmail,
-        customer_phone: inv.customerPhone,
-        days_overdue: inv.daysOverdue,
-        priority: inv.priority,
-      })));
-
-      addLog({ agent: t('system'), message: logMsg('logInvoicesLoaded', { count: result.count }), type: 'success' });
-      updateWorkflowStep(1, 'completed');
-    } catch (error) {
-      addLog({ agent: t('system'), message: logMsg('logError', { error: String(error) }), type: 'error' });
-    }
-  }, [setInvoices, addLog, updateWorkflowStep, t, logMsg]);
-
-  // Stop the running workflow
-  const stopWorkflow = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-  }, []);
-
-  const runWorkflow = useCallback(async () => {
-    if (invoices.length === 0) return;
-
-    // Create new AbortController for this workflow run
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-
-    setWorkflowRunning(true);
-    setShowAnalysisReport(false);
-    setShowGeneratedMessages(false);
-    setShowResponseAnalysis(false);
-    setGeneratedMessages([]);
-    setResponseAnalysis(null);
-    setAnalysisReportContent(null);
-    clearLogs();
-
-    // Reset workflow steps
-    updateWorkflowStep(1, 'completed');
-    updateWorkflowStep(2, 'pending');
-    updateWorkflowStep(3, 'pending');
-    updateWorkflowStep(4, 'pending');
-    updateWorkflowStep(5, 'pending');
-
-    addLog({ agent: t('system'), message: logMsg('logWorkflowStart'), type: 'info' });
-    addLog({ agent: t('system'), message: logMsg('logProviderInfo', { provider: aiSettings.provider, model: aiSettings.model }), type: 'info' });
-
-    try {
-      // Step 2: Payment Monitor Agent
-      updateWorkflowStep(2, 'running');
-      setAgentStatus('payment-monitor', 'running');
-      addLog({ agent: 'payment-monitor', message: logMsg('logAnalysisStart'), type: 'info' });
-
-      const monitorStartTime = Date.now();
-      const monitorResponse = await fetch('/api/agents/payment-monitor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: aiSettings.provider,
-          model: aiSettings.model,
-          apiKey: aiSettings.apiKey,
-          language,
-        }),
-        signal,
-      });
-
-      if (!monitorResponse.ok) {
-        const error = await monitorResponse.json();
-        throw new Error(error.error || 'Payment monitor failed');
-      }
-
-      const monitorResult = await monitorResponse.json();
-      const monitorDuration = Date.now() - monitorStartTime;
-
-      setAnalysisResult(monitorResult.stats);
-      setAnalysisReportContent(monitorResult.analysis);
-
-      addLog({ agent: 'payment-monitor', message: logMsg('logAnalysisComplete', { tokens: monitorResult.tokensUsed || 'N/A' }), type: 'success' });
-      addLog({ agent: 'payment-monitor', message: logMsg('logOverdueFound', { count: monitorResult.stats.overdueInvoices }), type: 'warning' });
-
-      setAgentStatus('payment-monitor', 'completed', monitorDuration);
-      updateWorkflowStep(2, 'completed');
-      setShowAnalysisReport(true);
-
-      // Step 3: Reminder Generator Agent
-      updateWorkflowStep(3, 'running');
-      setAgentStatus('reminder-generator', 'running');
-      addLog({ agent: 'reminder-generator', message: logMsg('logGeneratingMessages'), type: 'info' });
-
-      const reminderStartTime = Date.now();
-      const reminderResponse = await fetch('/api/agents/reminder-generator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: aiSettings.provider,
-          model: aiSettings.model,
-          apiKey: aiSettings.apiKey,
-          language,
-        }),
-        signal,
-      });
-
-      if (!reminderResponse.ok) {
-        const error = await reminderResponse.json();
-        throw new Error(error.error || 'Reminder generator failed');
-      }
-
-      const reminderResult = await reminderResponse.json();
-      const reminderDuration = Date.now() - reminderStartTime;
-
-      setGeneratedMessages(reminderResult.messages);
-
-      addLog({ agent: 'reminder-generator', message: logMsg('logMessagesGenerated', { count: reminderResult.count }), type: 'success' });
-      reminderResult.messages.forEach((msg: { channel: string; customerName: string }) => {
-        addLog({ agent: 'reminder-generator', message: logMsg('logMessageFor', { channel: msg.channel.toUpperCase(), customer: msg.customerName }), type: 'info' });
-      });
-
-      setAgentStatus('reminder-generator', 'completed', reminderDuration);
-      updateWorkflowStep(3, 'completed');
-      setShowGeneratedMessages(true);
-
-      // Step 4: Simulated wait for responses
-      updateWorkflowStep(4, 'running');
-      addLog({ agent: t('system'), message: logMsg('logWaitingResponses'), type: 'info' });
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      updateWorkflowStep(4, 'completed');
-      addLog({ agent: t('system'), message: logMsg('logResponseReceived'), type: 'info' });
-
-      // Step 5: Response Handler Agent
-      updateWorkflowStep(5, 'running');
-      setAgentStatus('response-handler', 'running');
-      addLog({ agent: 'response-handler', message: logMsg('logAnalyzingResponse'), type: 'info' });
-
-      const handlerStartTime = Date.now();
-
-      // Simulated customer response
-      const customerMessage = t('simulatedCustomerMessage');
-
-      const handlerResponse = await fetch('/api/agents/response-handler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invoiceId: invoices[0]?.invoice_id,
-          customerMessage,
-          provider: aiSettings.provider,
-          model: aiSettings.model,
-          apiKey: aiSettings.apiKey,
-          language,
-        }),
-        signal,
-      });
-
-      if (!handlerResponse.ok) {
-        const error = await handlerResponse.json();
-        throw new Error(error.error || 'Response handler failed');
-      }
-
-      const handlerResult = await handlerResponse.json();
-      const handlerDuration = Date.now() - handlerStartTime;
-
-      setResponseAnalysis({
-        invoiceId: handlerResult.analysis.invoiceId || invoices[0]?.invoice_id || 'N/A',
-        customerName: handlerResult.analysis.customerName || invoices[0]?.customer_name || 'Cliente',
-        originalMessage: customerMessage,
-        intent: handlerResult.analysis.intent,
-        intentConfidence: handlerResult.analysis.intentConfidence,
-        sentiment: handlerResult.analysis.sentiment,
-        extractedInfo: handlerResult.analysis.extractedInfo || [],
-        suggestedActions: handlerResult.analysis.suggestedActions || [],
-        draftResponse: handlerResult.analysis.draftResponse,
-        riskLevel: handlerResult.analysis.riskLevel,
-      });
-
-      addLog({ agent: 'response-handler', message: logMsg('logIntentDetected', { intent: handlerResult.analysis.intent, confidence: handlerResult.analysis.intentConfidence }), type: 'info' });
-      addLog({ agent: 'response-handler', message: logMsg('logSentimentDetected', { sentiment: handlerResult.analysis.sentiment }), type: 'info' });
-      addLog({ agent: 'response-handler', message: logMsg('logRiskDetected', { risk: handlerResult.analysis.riskLevel }), type: 'warning' });
-
-      setAgentStatus('response-handler', 'completed', handlerDuration);
-      updateWorkflowStep(5, 'completed');
-      setShowResponseAnalysis(true);
-
-      addLog({ agent: t('system'), message: logMsg('logWorkflowComplete'), type: 'success' });
-    } catch (error) {
-      // Check if the workflow was aborted by the user
-      if (error instanceof Error && error.name === 'AbortError') {
-        addLog({ agent: t('system'), message: logMsg('workflowStopped'), type: 'warning' });
-
-        // Reset agent states to idle on abort
-        setAgentStatus('payment-monitor', 'idle');
-        setAgentStatus('reminder-generator', 'idle');
-        setAgentStatus('response-handler', 'idle');
-      } else {
-        addLog({ agent: t('system'), message: logMsg('logError', { error: error instanceof Error ? error.message : 'Unknown error' }), type: 'error' });
-
-        // Reset agent states on error
-        setAgentStatus('payment-monitor', 'error');
-        setAgentStatus('reminder-generator', 'error');
-        setAgentStatus('response-handler', 'error');
-      }
-    } finally {
-      setWorkflowRunning(false);
-      abortControllerRef.current = null;
-    }
-  }, [invoices, aiSettings, language, setWorkflowRunning, clearLogs, updateWorkflowStep, setAgentStatus, addLog, setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, t, logMsg]);
-
-  const handleReset = useCallback(async () => {
-    try {
-      await fetch('/api/invoices', { method: 'DELETE' });
-    } catch (error) {
-      console.error('Failed to delete invoices:', error);
-    }
-    resetAll();
-    setSelectedInvoice(null);
-  }, [resetAll]);
-
-  const handleSaveSettings = useCallback((settings: AISettings) => {
-    setAISettings(settings);
-    addLog({ agent: t('system'), message: logMsg('logProviderChanged', { provider: settings.provider }), type: 'info' });
-  }, [setAISettings, addLog, t, logMsg]);
-
-  // Export current results to JSON
-  const handleExportResults = useCallback(() => {
-    const exportData = {
-      exportDate: new Date().toISOString(),
-      aiProvider: aiSettings.provider,
-      aiModel: aiSettings.model,
-      stats: analysisResult,
-      analysisReport: analysisReportContent,
-      generatedMessages,
-      responseAnalysis,
-      invoices,
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `paymind-export-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    addLog({ agent: t('system'), message: logMsg('logExportSuccess'), type: 'success' });
-  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, addLog, t, logMsg]);
-
-  // Save current workflow run to history
-  const handleSaveToHistory = useCallback(async () => {
-    if (!analysisResult) {
-      addLog({ agent: t('system'), message: logMsg('logNoResults'), type: 'warning' });
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/workflow-runs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: 'completed',
-          totalInvoices: analysisResult.totalInvoices,
-          overdueInvoices: analysisResult.overdueInvoices,
-          totalCredits: analysisResult.totalCredits,
-          overdueAmount: analysisResult.overdueAmount,
-          messagesGenerated: generatedMessages.length,
-          aiProvider: aiSettings.provider,
-          aiModel: aiSettings.model,
-          analysisReport: analysisReportContent,
-          generatedMessages,
-          responseAnalysis,
-          invoicesSnapshot: invoices,
-          logs: logs.map(log => ({ agent: log.agent, message: log.message, type: log.type })),
-        }),
-      });
-
-      if (response.ok) {
-        addLog({ agent: t('system'), message: logMsg('logSaveSuccess'), type: 'success' });
-        setHistoryRefresh(prev => prev + 1);
-      } else {
-        throw new Error('Failed to save workflow');
-      }
-    } catch (error) {
-      addLog({ agent: t('system'), message: logMsg('logSaveError', { error: String(error) }), type: 'error' });
-    }
-  }, [analysisResult, analysisReportContent, generatedMessages, responseAnalysis, invoices, aiSettings, logs, addLog, t, logMsg]);
-
-  // Load a workflow run from history
-  const handleLoadRun = useCallback((run: {
-    analysisReport: string | null;
-    generatedMessages: string | null;
-    responseAnalysis: string | null;
-    invoicesSnapshot: string | null;
-    totalInvoices: number;
-    overdueInvoices: number;
-    totalCredits: number;
-    overdueAmount: number;
-  }) => {
-    // Restore analysis result
-    setAnalysisResult({
-      totalInvoices: run.totalInvoices,
-      overdueInvoices: run.overdueInvoices,
-      totalCredits: run.totalCredits,
-      overdueAmount: run.overdueAmount,
-    });
-
-    // Restore analysis report content
-    if (run.analysisReport) {
-      setAnalysisReportContent(run.analysisReport);
-      setShowAnalysisReport(true);
-    }
-
-    // Restore generated messages
-    if (run.generatedMessages) {
-      const messages = typeof run.generatedMessages === 'string'
-        ? JSON.parse(run.generatedMessages)
-        : run.generatedMessages;
-      setGeneratedMessages(messages);
-      setShowGeneratedMessages(true);
-    }
-
-    // Restore response analysis
-    if (run.responseAnalysis) {
-      const analysis = typeof run.responseAnalysis === 'string'
-        ? JSON.parse(run.responseAnalysis)
-        : run.responseAnalysis;
-      setResponseAnalysis(analysis);
-      setShowResponseAnalysis(true);
-    }
-
-    // Restore invoices
-    if (run.invoicesSnapshot) {
-      const invs = typeof run.invoicesSnapshot === 'string'
-        ? JSON.parse(run.invoicesSnapshot)
-        : run.invoicesSnapshot;
-      setInvoices(invs);
-    }
-
-    addLog({ agent: t('system'), message: logMsg('logLoadedFromHistory'), type: 'info' });
-  }, [setAnalysisResult, setAnalysisReportContent, setShowAnalysisReport, setGeneratedMessages, setShowGeneratedMessages, setResponseAnalysis, setShowResponseAnalysis, setInvoices, addLog, t, logMsg]);
+  if (!mounted) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen">
-      <Header
-        onUpload={() => setIsUploadOpen(true)}
-        onRunWorkflow={runWorkflow}
-        onStopWorkflow={stopWorkflow}
-        onReset={handleReset}
-        onSettings={() => setIsSettingsOpen(true)}
-        isRunning={isWorkflowRunning}
-        hasInvoices={invoices.length > 0}
-        aiProvider={aiSettings.provider}
-        invoiceCount={invoices.length}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        language={language}
-        onToggleLanguage={handleToggleLanguage}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 transition-colors duration-500">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-indigo-400/20 dark:bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-40 right-1/3 w-80 h-80 bg-purple-400/20 dark:bg-purple-500/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
+      </div>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Stats */}
-        <div className="mb-6 sm:mb-8">
-          <StatsCards result={analysisResult} language={language} />
+      {/* Navigation */}
+      <nav className="relative z-10 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+              PayMind
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleLanguage}
+              className="p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 transition-all"
+              title={language === 'it' ? 'Switch to English' : 'Passa a Italiano'}
+            >
+              <Globe className="w-5 h-5" />
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 transition-all"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+      </nav>
 
-        {/* Agents Grid */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('aiAgents')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {agents.map((agent) => (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                isActive={agent.status === 'running'}
-                language={language}
-              />
+      {/* Hero Section */}
+      <main className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-16 sm:pb-24">
+          {/* Tagline Badge */}
+          <div className="flex justify-center mb-6 sm:mb-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20 border border-blue-200/50 dark:border-blue-700/50 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{content.tagline}</span>
+            </div>
+          </div>
+
+          {/* Main Headline */}
+          <div className="text-center mb-6 sm:mb-8 animate-slide-up">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+              <span className="text-gray-900 dark:text-white">{content.headline}</span>
+              <br />
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
+                {content.headlineAccent}
+              </span>
+            </h1>
+          </div>
+
+          {/* Subheadline */}
+          <p className="max-w-2xl mx-auto text-center text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-10 sm:mb-12 animate-slide-up animation-delay-200">
+            {content.subheadline}
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 sm:mb-20 animate-slide-up animation-delay-400">
+            <Link
+              href="/dashboard"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5"
+            >
+              {content.cta}
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <a
+              href="#features"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-300 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300"
+            >
+              {content.ctaSecondary}
+              <ChevronRight className="w-5 h-5" />
+            </a>
+          </div>
+
+          {/* Stats Row */}
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 mb-20 sm:mb-28 animate-fade-in animation-delay-600">
+            {content.stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stat.label}</div>
+              </div>
             ))}
           </div>
-        </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Left Column - Workflow, Logs & History */}
-          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
-            <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
-            <LogsPanel logs={logs} onClear={clearLogs} language={language} />
-            <WorkflowHistory
-              language={language}
-              onLoadRun={handleLoadRun}
-              refreshTrigger={historyRefresh}
-            />
-          </div>
-
-          {/* Right Column - Invoices Table (shown first on mobile) */}
-          <div className="lg:col-span-2 order-1 lg:order-2">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('invoicesTitle')}</h2>
-            <InvoicesTable
-              invoices={invoices}
-              onSelectInvoice={setSelectedInvoice}
-              selectedInvoiceId={selectedInvoice?.invoice_id}
-              language={language}
-            />
-          </div>
-        </div>
-
-        {/* Agent Outputs Section */}
-        {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('agentOutputs')}</h2>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleExportResults}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('exportCurrentResults')}</span>
-                  <span className="sm:hidden">{language === 'it' ? 'Esporta' : 'Export'}</span>
-                </button>
-                <button
-                  onClick={handleSaveToHistory}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('saveToHistory')}</span>
-                  <span className="sm:hidden">{language === 'it' ? 'Salva' : 'Save'}</span>
-                </button>
+          {/* Benefits Row */}
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-20 animate-fade-in animation-delay-800">
+            {content.benefits.map((benefit, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-lg border border-gray-200/50 dark:border-gray-700/50"
+              >
+                <benefit.icon className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{benefit.text}</span>
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <AnalysisReport
-                result={analysisResult}
-                invoices={invoices}
-                isVisible={showAnalysisReport}
-                language={language}
-              />
-              <GeneratedMessages
-                messages={generatedMessages}
-                isVisible={showGeneratedMessages}
-                language={language}
-              />
-              <ResponseAnalysis
-                analysis={responseAnalysis}
-                isVisible={showResponseAnalysis}
-                language={language}
-              />
+            ))}
+          </div>
+
+          {/* Features Section */}
+          <div id="features" className="pt-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {content.features.title}
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                {content.features.subtitle}
+              </p>
             </div>
 
-            {/* Full AI Analysis Report */}
-            {analysisReportContent && (
-              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-500" />
-                    {t('fullAiReport')}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleCopyReport}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      title={language === 'it' ? 'Copia report' : 'Copy report'}
-                    >
-                      {reportCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                      <span className="hidden xs:inline">{reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}</span>
-                    </button>
-                    <button
-                      onClick={handleExportPDF}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                      title={language === 'it' ? 'Esporta PDF professionale' : 'Export professional PDF'}
-                    >
-                      <Download className="w-4 h-4" />
-                      <span className="hidden xs:inline">{language === 'it' ? 'Esporta PDF' : 'Export PDF'}</span>
-                    </button>
+            {/* Agent Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              {content.agents.map((agent, index) => (
+                <div
+                  key={index}
+                  className="group relative p-6 sm:p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300 dark:hover:border-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Step number */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                    {index + 1}
+                  </div>
+
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <agent.icon className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      {agent.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {agent.description}
+                    </p>
                   </div>
                 </div>
-                <div className="p-4 sm:p-6">
-                  <div className="prose dark:prose-invert max-w-none text-sm">
-                    <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-lg overflow-auto max-h-64 sm:max-h-96 text-xs sm:text-sm">
-                      {analysisReportContent}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Video Section */}
+          <div className="mt-24 sm:mt-32">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {content.video.title}
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                {content.video.subtitle}
+              </p>
+            </div>
+
+            {/* Video Container */}
+            <div className="relative max-w-4xl mx-auto">
+              <div className="aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl border border-gray-200/20 dark:border-gray-700/50">
+                <video
+                  className="w-full h-full object-cover"
+                  controls
+                  poster="/assets/paymind-overview.png"
+                  preload="metadata"
+                >
+                  <source src="/assets/PayMind__AI_Payment_Team.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 blur-3xl -z-10 rounded-3xl" />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="relative z-10 py-8 border-t border-gray-200/50 dark:border-gray-800/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                <Bot className="w-5 h-5" />
+                <span className="text-sm">{content.footer}</span>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <span>Next.js 16</span>
+                <span>•</span>
+                <span>TypeScript</span>
+                <span>•</span>
+                <span>Tailwind CSS</span>
+              </div>
+            </div>
+          </div>
+        </footer>
       </main>
-
-      <FileUpload
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onFileSelect={handleFileSelect}
-        language={language}
-      />
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        onSave={handleSaveSettings}
-        currentSettings={aiSettings}
-        language={language}
-      />
     </div>
   );
 }

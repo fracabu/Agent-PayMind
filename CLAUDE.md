@@ -38,6 +38,7 @@ Next.js 16.0.10 application with App Router:
 - **Theme**: Dark/light mode toggle persisted in Zustand (uses `.dark` class on `<html>`)
 - **i18n**: Italian/English UI toggle (language stored in Zustand)
 - **Styling**: Tailwind CSS v4 with `@custom-variant dark (&:is(.dark *))` for manual dark mode
+- **Responsive**: Mobile-first with custom `xs` breakpoint (480px) in `globals.css`
 
 ### Data Flow
 
@@ -58,6 +59,7 @@ npm install
 npm run dev          # Start dev server at localhost:3000
 npm run build        # Production build
 npm run lint         # ESLint
+npx tsc --noEmit     # Type checking (no tests defined)
 
 # Database setup
 npx prisma db push   # Apply schema to SQLite
@@ -133,10 +135,24 @@ Theme flow:
 - `dashboard/src/lib/agents.ts` - System prompts: `PAYMENT_MONITOR_PROMPT`, `REMINDER_GENERATOR_PROMPT`, `RESPONSE_HANDLER_PROMPT`
 - `dashboard/src/lib/store.ts` - Global Zustand state including `aiSettings`, `theme`, `language`
 - `dashboard/src/lib/i18n.ts` - Translation system with `useTranslation()` hook and `formatMessage()` for parameterized strings
+- `dashboard/src/lib/pdf-export.ts` - PDF report generation using jspdf + jspdf-autotable
 - `dashboard/src/types/index.ts` - TypeScript interfaces: Agent, Invoice, LogEntry, WorkflowStep, AnalysisResult
 - `dashboard/prisma/schema.prisma` - Database models: Invoice, Message, ResponseAnalysis, WorkflowRun, WorkflowLog
 - `dashboard/src/app/globals.css` - Tailwind v4 config with dark mode custom variant
 
+## OpenRouter Free Models
+
+OpenRouter provides 5 free models that work well for PayMind:
+- `google/gemini-2.0-flash-exp:free` - General purpose (default)
+- `deepseek/deepseek-r1-0528:free` - Reasoning tasks
+- `meta-llama/llama-3.3-70b-instruct:free` - High-quality responses
+- `mistralai/devstral-2512:free` - Coding tasks
+- `mistralai/mistral-small-3.1-24b-instruct:free` - Fast responses
+
 ## Language
 
 Italian business communications. Agent prompts and generated messages use Italian. Dashboard UI supports Italian/English toggle.
+
+## CI/CD
+
+GitHub Actions runs on push/PR to main (`.github/workflows/ci.yml`): validates project structure (README.md, .claude directory).
