@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Invoice } from '@/types';
-import { Mail, MessageSquare, Phone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, MessageSquare, Phone, AlertTriangle, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface InvoicesTableProps {
@@ -10,6 +11,8 @@ interface InvoicesTableProps {
   selectedInvoiceId?: string;
   language: Language;
 }
+
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 const channelIcons = {
   email: <Mail className="w-4 h-4" />,
@@ -28,6 +31,21 @@ const priorityStyles = {
 
 export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoiceId, language }: InvoicesTableProps) {
   const { t } = useTranslation(language);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Pagination calculations
+  const totalItems = invoices.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const paginatedInvoices = invoices.slice(startIndex, endIndex);
+
+  // Reset to page 1 when items per page changes
+  const handleItemsPerPageChange = (newValue: number) => {
+    setItemsPerPage(newValue);
+    setCurrentPage(1);
+  };
 
   // Translate priority based on language
   const translatePriority = (priority: string | undefined): string => {
@@ -73,6 +91,106 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
     return new Date(dateStr).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
   };
 
+  // Pagination Controls Component
+  const PaginationControls = () => {
+    if (totalItems <= 5) return null;
+
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+        {/* Items per page selector */}
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <span>{language === 'it' ? 'Righe:' : 'Rows:'}</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+            className="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {ITEMS_PER_PAGE_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Page info and navigation */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {startIndex + 1}-{endIndex} {t('of')} {totalItems}
+          </span>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title={language === 'it' ? 'Prima pagina' : 'First page'}
+            >
+              <ChevronsLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title={language === 'it' ? 'Precedente' : 'Previous'}
+            >
+              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+
+            {/* Page numbers */}
+            <div className="hidden sm:flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-8 h-8 rounded text-sm font-medium transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-blue-600 text-white'
+                        : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile page indicator */}
+            <span className="sm:hidden px-2 text-sm text-gray-600 dark:text-gray-400">
+              {currentPage}/{totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title={language === 'it' ? 'Successiva' : 'Next'}
+            >
+              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title={language === 'it' ? 'Ultima pagina' : 'Last page'}
+            >
+              <ChevronsRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (invoices.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
@@ -86,8 +204,8 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
-        {invoices.map((invoice) => {
+      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
+        {paginatedInvoices.map((invoice) => {
           const status = statusConfig[invoice.status];
           const amountDue = invoice.amount_total - invoice.amount_paid;
 
@@ -134,9 +252,9 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto max-h-[500px] overflow-y-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900/50">
+          <thead className="bg-gray-50 dark:bg-gray-900/50 sticky top-0 z-10">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {t('id')}
@@ -162,7 +280,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {invoices.map((invoice) => {
+            {paginatedInvoices.map((invoice) => {
               const status = statusConfig[invoice.status];
               const amountDue = invoice.amount_total - invoice.amount_paid;
 
@@ -239,6 +357,9 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      <PaginationControls />
     </div>
   );
 }

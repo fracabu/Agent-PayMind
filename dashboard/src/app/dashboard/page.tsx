@@ -15,10 +15,11 @@ import GeneratedMessages from '@/components/GeneratedMessages';
 import ResponseAnalysis from '@/components/ResponseAnalysis';
 import SettingsModal, { AISettings } from '@/components/SettingsModal';
 import WorkflowHistory from '@/components/WorkflowHistory';
-import { Download, Save, Copy, Check, FileText } from 'lucide-react';
+import { Download, Save, Copy, Check, FileText, FileDown } from 'lucide-react';
 import { Invoice } from '@/types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { generateComprehensivePDF } from '@/lib/pdf-export';
 
 export default function Dashboard() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -405,6 +406,20 @@ export default function Dashboard() {
     doc.save(`paymind-report-${new Date().toISOString().split('T')[0]}.pdf`);
     addLog({ agent: 'system', message: language === 'it' ? 'Report PDF esportato con successo' : 'PDF report exported successfully', type: 'success' });
   }, [analysisResult, invoices, generatedMessages, responseAnalysis, aiSettings, language, addLog]);
+
+  // Generate comprehensive PDF report
+  const handleExportComprehensivePDF = useCallback(() => {
+    generateComprehensivePDF({
+      language,
+      analysisResult,
+      invoices,
+      generatedMessages,
+      responseAnalysis,
+      analysisReportContent,
+      aiSettings,
+    });
+    addLog({ agent: 'system', message: language === 'it' ? 'Report PDF completo esportato' : 'Complete PDF report exported', type: 'success' });
+  }, [language, analysisResult, invoices, generatedMessages, responseAnalysis, analysisReportContent, aiSettings, addLog]);
 
   const parseCSV = (text: string): Invoice[] => {
     const lines = text.trim().split('\n');
@@ -926,11 +941,19 @@ export default function Dashboard() {
                     </button>
                     <button
                       onClick={handleExportPDF}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                      title={language === 'it' ? 'Esporta PDF professionale' : 'Export professional PDF'}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      title={language === 'it' ? 'PDF Rapido' : 'Quick PDF'}
                     >
                       <Download className="w-4 h-4" />
-                      <span className="hidden xs:inline">{language === 'it' ? 'Esporta PDF' : 'Export PDF'}</span>
+                      <span className="hidden xs:inline">{language === 'it' ? 'PDF' : 'PDF'}</span>
+                    </button>
+                    <button
+                      onClick={handleExportComprehensivePDF}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                      title={language === 'it' ? 'Report PDF Completo con grafici e dettagli' : 'Complete PDF Report with charts and details'}
+                    >
+                      <FileDown className="w-4 h-4" />
+                      <span className="hidden xs:inline">{language === 'it' ? 'Report Completo' : 'Full Report'}</span>
                     </button>
                   </div>
                 </div>
