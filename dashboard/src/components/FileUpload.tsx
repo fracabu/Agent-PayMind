@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { Upload, FileText, X } from 'lucide-react';
+import { ArrowUpTrayIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface FileUploadProps {
@@ -61,7 +61,7 @@ export default function FileUpload({ isOpen, onClose, onFileSelect, language }: 
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
           >
-            <X className="w-5 h-5" />
+            <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
@@ -76,7 +76,7 @@ export default function FileUpload({ isOpen, onClose, onFileSelect, language }: 
         >
           {selectedFile ? (
             <div className="flex flex-col items-center gap-2">
-              <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-green-500" />
+              <DocumentTextIcon className="w-10 h-10 sm:w-12 sm:h-12 text-green-500" />
               <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white break-all">{selectedFile.name}</p>
               <p className="text-xs sm:text-sm text-gray-500">
                 {(selectedFile.size / 1024).toFixed(1)} KB
@@ -84,7 +84,7 @@ export default function FileUpload({ isOpen, onClose, onFileSelect, language }: 
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
+              <ArrowUpTrayIcon className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 {t('dropCsv')}
               </p>

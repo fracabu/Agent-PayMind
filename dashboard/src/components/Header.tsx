@@ -1,8 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { Upload, Play, RotateCcw, Settings, Database, Sun, Moon, Globe, Square, Home } from 'lucide-react';
+import {
+  ArrowUpTrayIcon,
+  PlayIcon,
+  ArrowPathIcon,
+  Cog6ToothIcon,
+  CircleStackIcon,
+  SunIcon,
+  MoonIcon,
+  GlobeAltIcon,
+  StopIcon,
+} from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
+
+// Custom PayMind Logo Icon (same as home page)
+function PayMindIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="14" height="14" rx="2" fill="currentColor" opacity="0.9"/>
+      <rect x="22" y="4" width="14" height="14" rx="2" fill="currentColor" opacity="0.6"/>
+      <rect x="4" y="22" width="14" height="14" rx="2" fill="currentColor" opacity="0.6"/>
+      <rect x="22" y="22" width="14" height="14" rx="2" fill="currentColor" opacity="0.3"/>
+    </svg>
+  );
+}
 
 interface HeaderProps {
   onUpload: () => void;
@@ -51,7 +73,7 @@ export default function Header({
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity" title="Home">
-              <span className="text-2xl sm:text-3xl">💰</span>
+              <PayMindIcon className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600 dark:text-indigo-400" />
               <div>
                 <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
                 <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden xs:block">{t('appDescription')}</p>
@@ -63,7 +85,7 @@ export default function Header({
           <div className="hidden md:flex items-center gap-4">
             {invoiceCount > 0 && (
               <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
-                <Database className="w-4 h-4 text-gray-500" />
+                <CircleStackIcon className="w-4 h-4 text-gray-500" />
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   {invoiceCount} {t('invoices')}
                 </span>
@@ -85,7 +107,7 @@ export default function Header({
               className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               title={t('language')}
             >
-              <Globe className="w-4 h-4 text-gray-500" />
+              <GlobeAltIcon className="w-4 h-4 text-gray-500" />
               <span className="text-sm text-gray-600 dark:text-gray-300 uppercase">{language}</span>
             </button>
 
@@ -96,9 +118,9 @@ export default function Header({
               title={t('theme')}
             >
               {theme === 'light' ? (
-                <Moon className="w-4 h-4 text-gray-600" />
+                <MoonIcon className="w-4 h-4 text-gray-600" />
               ) : (
-                <Sun className="w-4 h-4 text-yellow-400" />
+                <SunIcon className="w-4 h-4 text-yellow-400" />
               )}
             </button>
           </div>
@@ -111,7 +133,7 @@ export default function Header({
               className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title={t('language')}
             >
-              <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
+              <GlobeAltIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
@@ -119,14 +141,14 @@ export default function Header({
               className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               title={t('theme')}
             >
-              {theme === 'light' ? <Moon className="w-4 h-4 sm:w-5 sm:h-5" /> : <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />}
+              {theme === 'light' ? <MoonIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <SunIcon className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />}
             </button>
 
             <button
               onClick={onSettings}
               className="md:hidden p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Cog6ToothIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
@@ -134,7 +156,7 @@ export default function Header({
               disabled={isRunning}
               className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <ArrowUpTrayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('uploadCsv')}</span>
             </button>
 
@@ -143,7 +165,7 @@ export default function Header({
                 onClick={onStopWorkflow}
                 className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
               >
-                <Square className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <StopIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">{t('stopWorkflow')}</span>
               </button>
             ) : (
@@ -152,7 +174,7 @@ export default function Header({
                 disabled={!hasInvoices}
                 className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <PlayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">{t('runWorkflow')}</span>
               </button>
             )}
@@ -163,7 +185,7 @@ export default function Header({
               className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title={t('reset')}
             >
-              <RotateCcw className="w-4 h-4" />
+              <ArrowPathIcon className="w-4 h-4" />
             </button>
           </div>
         </div>

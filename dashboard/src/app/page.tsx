@@ -4,16 +4,15 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAppStore } from '@/lib/store';
 import {
-  ArrowRight,
-  Sun,
-  Moon,
-  Globe,
-  Play,
-  CheckCircle2,
-  Zap,
-  Shield,
-  BarChart3
-} from 'lucide-react';
+  ArrowRightIcon,
+  SunIcon,
+  MoonIcon,
+  GlobeAltIcon,
+  PlayIcon,
+  BoltIcon,
+  ShieldCheckIcon,
+  ChartBarIcon,
+} from '@heroicons/react/24/outline';
 
 // Custom PayMind Logo Icon
 function PayMindIcon({ className }: { className?: string }) {
@@ -53,9 +52,9 @@ export default function HeroPage() {
       cta: 'Prova la Demo',
       watchVideo: 'Guarda il Video',
       features: [
-        { icon: Zap, text: 'Analisi Automatica' },
-        { icon: Shield, text: 'Multi-Provider AI' },
-        { icon: BarChart3, text: 'Report Professionali' },
+        { icon: BoltIcon, text: 'Analisi Automatica' },
+        { icon: ShieldCheckIcon, text: 'Multi-Provider AI' },
+        { icon: ChartBarIcon, text: 'Report Professionali' },
       ],
       trustedBy: 'Costruito con',
       howItWorks: 'Come Funziona',
@@ -73,9 +72,9 @@ export default function HeroPage() {
       cta: 'Try the Demo',
       watchVideo: 'Watch Video',
       features: [
-        { icon: Zap, text: 'Automatic Analysis' },
-        { icon: Shield, text: 'Multi-Provider AI' },
-        { icon: BarChart3, text: 'Professional Reports' },
+        { icon: BoltIcon, text: 'Automatic Analysis' },
+        { icon: ShieldCheckIcon, text: 'Multi-Provider AI' },
+        { icon: ChartBarIcon, text: 'Professional Reports' },
       ],
       trustedBy: 'Built with',
       howItWorks: 'How It Works',
@@ -114,13 +113,13 @@ export default function HeroPage() {
                 className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                 title={language === 'it' ? 'Switch to English' : 'Passa a Italiano'}
               >
-                <Globe className="w-5 h-5" />
+                <GlobeAltIcon className="w-5 h-5" />
               </button>
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
               >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {theme === 'dark' ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
               </button>
               <Link
                 href="/dashboard"
@@ -159,14 +158,14 @@ export default function HeroPage() {
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300 hover:-translate-y-0.5"
               >
                 {content.cta}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <a
                 href="#video"
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
                 <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900 transition-colors">
-                  <Play className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ml-0.5" />
+                  <PlayIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ml-0.5" />
                 </div>
                 {content.watchVideo}
               </a>

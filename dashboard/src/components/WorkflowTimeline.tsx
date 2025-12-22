@@ -1,7 +1,7 @@
 'use client';
 
 import { WorkflowStep } from '@/types';
-import { Check, Loader2, Circle, AlertCircle } from 'lucide-react';
+import { CheckIcon, ArrowPathIcon, StopIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language, TranslationKey } from '@/lib/i18n';
 
 interface WorkflowTimelineProps {
@@ -11,10 +11,10 @@ interface WorkflowTimelineProps {
 }
 
 const stepIcons = {
-  pending: <Circle className="w-5 h-5 text-gray-400" />,
-  running: <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />,
-  completed: <Check className="w-5 h-5 text-white" />,
-  error: <AlertCircle className="w-5 h-5 text-white" />,
+  pending: <StopIcon className="w-5 h-5 text-gray-400" />,
+  running: <ArrowPathIcon className="w-5 h-5 text-blue-500 animate-spin" />,
+  completed: <CheckIcon className="w-5 h-5 text-white" />,
+  error: <ExclamationCircleIcon className="w-5 h-5 text-white" />,
 };
 
 // Map step IDs to translation keys

@@ -1,7 +1,7 @@
 'use client';
 
 import { AnalysisResult } from '@/types';
-import { FileText, AlertTriangle, Euro, TrendingUp } from 'lucide-react';
+import { DocumentTextIcon, ExclamationTriangleIcon, CurrencyEuroIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface StatsCardsProps {
@@ -20,28 +20,28 @@ export default function StatsCards({ result, language }: StatsCardsProps) {
     {
       label: t('totalInvoices'),
       value: result?.totalInvoices ?? '-',
-      icon: <FileText className="w-6 h-6" />,
+      icon: <DocumentTextIcon className="w-6 h-6" />,
       color: 'text-blue-500',
       bg: 'bg-blue-50 dark:bg-blue-900/20',
     },
     {
       label: t('overdueInvoices'),
       value: result?.overdueInvoices ?? '-',
-      icon: <AlertTriangle className="w-6 h-6" />,
+      icon: <ExclamationTriangleIcon className="w-6 h-6" />,
       color: 'text-red-500',
       bg: 'bg-red-50 dark:bg-red-900/20',
     },
     {
       label: t('totalCredits'),
       value: result ? formatCurrency(result.totalCredits) : '-',
-      icon: <Euro className="w-6 h-6" />,
+      icon: <CurrencyEuroIcon className="w-6 h-6" />,
       color: 'text-green-500',
       bg: 'bg-green-50 dark:bg-green-900/20',
     },
     {
       label: t('overdueAmount'),
       value: result ? formatCurrency(result.overdueAmount) : '-',
-      icon: <TrendingUp className="w-6 h-6" />,
+      icon: <ArrowTrendingUpIcon className="w-6 h-6" />,
       color: 'text-orange-500',
       bg: 'bg-orange-50 dark:bg-orange-900/20',
     },

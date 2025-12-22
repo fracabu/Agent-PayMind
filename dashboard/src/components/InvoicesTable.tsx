@@ -2,7 +2,18 @@
 
 import { useState } from 'react';
 import { Invoice } from '@/types';
-import { Mail, MessageSquare, Phone, AlertTriangle, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  EnvelopeIcon,
+  ChatBubbleLeftIcon,
+  PhoneIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
+} from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface InvoicesTableProps {
@@ -15,9 +26,9 @@ interface InvoicesTableProps {
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 const channelIcons = {
-  email: <Mail className="w-4 h-4" />,
-  whatsapp: <MessageSquare className="w-4 h-4" />,
-  sms: <Phone className="w-4 h-4" />,
+  email: <EnvelopeIcon className="w-4 h-4" />,
+  whatsapp: <ChatBubbleLeftIcon className="w-4 h-4" />,
+  sms: <PhoneIcon className="w-4 h-4" />,
 };
 
 const priorityStyles = {
@@ -67,17 +78,17 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
 
   const statusConfig = {
     open: {
-      icon: <AlertTriangle className="w-4 h-4" />,
+      icon: <ExclamationTriangleIcon className="w-4 h-4" />,
       bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
       label: t('statusOpen'),
     },
     paid: {
-      icon: <CheckCircle className="w-4 h-4" />,
+      icon: <CheckCircleIcon className="w-4 h-4" />,
       bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
       label: t('statusPaid'),
     },
     disputed: {
-      icon: <AlertCircle className="w-4 h-4" />,
+      icon: <ExclamationCircleIcon className="w-4 h-4" />,
       bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
       label: t('statusDisputed'),
     },
@@ -124,7 +135,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
               className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title={language === 'it' ? 'Prima pagina' : 'First page'}
             >
-              <ChevronsLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronDoubleLeftIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -132,7 +143,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
               className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title={language === 'it' ? 'Precedente' : 'Previous'}
             >
-              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronLeftIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {/* Page numbers */}
@@ -175,7 +186,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
               className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title={language === 'it' ? 'Successiva' : 'Next'}
             >
-              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronRightIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
@@ -183,7 +194,7 @@ export default function InvoicesTable({ invoices, onSelectInvoice, selectedInvoi
               className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title={language === 'it' ? 'Ultima pagina' : 'Last page'}
             >
-              <ChevronsRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronDoubleRightIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         </div>

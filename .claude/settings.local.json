@@ -10,7 +10,8 @@
       "Bash(powershell -Command \"cd ''C:\\\\Users\\\\utente\\\\Agent-PayMind\\\\dashboard''; npm run dev\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(powershell -Command \"cd ''C:\\\\Users\\\\utente\\\\Agent-PayMind\\\\dashboard''; npm install @heroicons/react\")"
     ],
     "deny": [],
     "ask": []

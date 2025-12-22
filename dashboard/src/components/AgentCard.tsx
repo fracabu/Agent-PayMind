@@ -1,8 +1,23 @@
 'use client';
 
 import { Agent } from '@/types';
-import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import {
+  ArrowPathIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  ChartBarIcon,
+  EnvelopeIcon,
+  ChatBubbleLeftRightIcon
+} from '@heroicons/react/24/outline';
 import { useTranslation, Language, TranslationKey } from '@/lib/i18n';
+
+// Map agent IDs to heroicons
+const agentIcons: Record<string, React.ReactNode> = {
+  'payment-monitor': <ChartBarIcon className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />,
+  'reminder-generator': <EnvelopeIcon className="w-8 h-8 sm:w-10 sm:h-10 text-green-500" />,
+  'response-handler': <ChatBubbleLeftRightIcon className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />,
+};
 
 interface AgentCardProps {
   agent: Agent;
@@ -31,28 +46,28 @@ export default function AgentCard({ agent, isActive, onClick, language }: AgentC
       bg: 'bg-gray-100 dark:bg-gray-800',
       border: 'border-gray-200 dark:border-gray-700',
       badge: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
-      icon: <Clock className="w-4 h-4" />,
+      icon: <ClockIcon className="w-4 h-4" />,
       label: t('statusIdle'),
     },
     running: {
       bg: 'bg-blue-50 dark:bg-blue-900/20',
       border: 'border-blue-300 dark:border-blue-700',
       badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-      icon: <Loader2 className="w-4 h-4 animate-spin" />,
+      icon: <ArrowPathIcon className="w-4 h-4 animate-spin" />,
       label: t('statusRunning'),
     },
     completed: {
       bg: 'bg-green-50 dark:bg-green-900/20',
       border: 'border-green-300 dark:border-green-700',
       badge: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-      icon: <CheckCircle2 className="w-4 h-4" />,
+      icon: <CheckCircleIcon className="w-4 h-4" />,
       label: t('statusCompleted'),
     },
     error: {
       bg: 'bg-red-50 dark:bg-red-900/20',
       border: 'border-red-300 dark:border-red-700',
       badge: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-      icon: <XCircle className="w-4 h-4" />,
+      icon: <XCircleIcon className="w-4 h-4" />,
       label: t('statusError'),
     },
   };
@@ -76,7 +91,9 @@ export default function AgentCard({ agent, isActive, onClick, language }: AgentC
       </div>
 
       {/* Icon */}
-      <div className="text-2xl sm:text-4xl mb-2 sm:mb-3">{agent.icon}</div>
+      <div className="mb-2 sm:mb-3">
+        {agentIcons[agent.id] || <span className="text-2xl sm:text-4xl">{agent.icon}</span>}
+      </div>
 
       {/* Name */}
       <h3 className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 pr-16 sm:pr-20">

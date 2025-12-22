@@ -1,7 +1,7 @@
 'use client';
 
 import { LogEntry } from '@/types';
-import { Info, CheckCircle, AlertTriangle, XCircle, Trash2 } from 'lucide-react';
+import { InformationCircleIcon, CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface LogsPanelProps {
@@ -12,22 +12,22 @@ interface LogsPanelProps {
 
 const typeConfig = {
   info: {
-    icon: <Info className="w-4 h-4" />,
+    icon: <InformationCircleIcon className="w-4 h-4" />,
     color: 'text-blue-500',
     bg: 'bg-blue-50 dark:bg-blue-900/20',
   },
   success: {
-    icon: <CheckCircle className="w-4 h-4" />,
+    icon: <CheckCircleIcon className="w-4 h-4" />,
     color: 'text-green-500',
     bg: 'bg-green-50 dark:bg-green-900/20',
   },
   warning: {
-    icon: <AlertTriangle className="w-4 h-4" />,
+    icon: <ExclamationTriangleIcon className="w-4 h-4" />,
     color: 'text-yellow-500',
     bg: 'bg-yellow-50 dark:bg-yellow-900/20',
   },
   error: {
-    icon: <XCircle className="w-4 h-4" />,
+    icon: <XCircleIcon className="w-4 h-4" />,
     color: 'text-red-500',
     bg: 'bg-red-50 dark:bg-red-900/20',
   },
@@ -55,7 +55,7 @@ export default function LogsPanel({ logs, onClear, language }: LogsPanelProps) {
             onClick={onClear}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1"
           >
-            <Trash2 className="w-4 h-4" />
+            <TrashIcon className="w-4 h-4" />
           </button>
         )}
       </div>

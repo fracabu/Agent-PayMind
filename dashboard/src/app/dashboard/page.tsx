@@ -15,7 +15,15 @@ import GeneratedMessages from '@/components/GeneratedMessages';
 import ResponseAnalysis from '@/components/ResponseAnalysis';
 import SettingsModal, { AISettings } from '@/components/SettingsModal';
 import WorkflowHistory from '@/components/WorkflowHistory';
-import { Download, Save, Copy, Check, FileText, FileDown } from 'lucide-react';
+import DashboardCharts from '@/components/DashboardCharts';
+import {
+  ArrowDownTrayIcon,
+  BookmarkIcon,
+  ClipboardDocumentIcon,
+  CheckIcon,
+  DocumentTextIcon,
+  ArrowDownOnSquareIcon,
+} from '@heroicons/react/24/outline';
 import { Invoice } from '@/types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -833,142 +841,161 @@ export default function Dashboard() {
         onToggleLanguage={handleToggleLanguage}
       />
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-12 sm:pb-16">
-        {/* Stats */}
-        <div className="mb-6 sm:mb-8">
-          <StatsCards result={analysisResult} language={language} />
-        </div>
+      {/* 2-Column Layout: Sidebar | Main Content */}
+      <div className="flex min-h-[calc(100vh-64px)]">
+        {/* Left Sidebar - Pipeline, Logs & History (hidden on mobile, shown on xl) */}
+        <aside className="hidden xl:flex flex-col w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 p-4 space-y-4 overflow-y-auto">
+          <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
+          <LogsPanel logs={logs} onClear={clearLogs} language={language} />
+          <WorkflowHistory
+            language={language}
+            onLoadRun={handleLoadRun}
+            refreshTrigger={historyRefresh}
+          />
+        </aside>
 
-        {/* Agents Grid */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('aiAgents')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {agents.map((agent) => (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                isActive={agent.status === 'running'}
-                language={language}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="px-4 lg:px-6 py-4 pb-12 space-y-6">
+            {/* Stats Cards */}
+            <StatsCards result={analysisResult} language={language} />
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Left Column - Workflow, Logs & History */}
-          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
-            <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
-            <LogsPanel logs={logs} onClear={clearLogs} language={language} />
-            <WorkflowHistory
-              language={language}
-              onLoadRun={handleLoadRun}
-              refreshTrigger={historyRefresh}
-            />
-          </div>
-
-          {/* Right Column - Invoices Table (shown first on mobile) */}
-          <div className="lg:col-span-2 order-1 lg:order-2">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('invoicesTitle')}</h2>
-            <InvoicesTable
+            {/* Charts */}
+            <DashboardCharts
+              analysisResult={analysisResult}
               invoices={invoices}
-              onSelectInvoice={setSelectedInvoice}
-              selectedInvoiceId={selectedInvoice?.invoice_id}
               language={language}
             />
-          </div>
-        </div>
 
-        {/* Agent Outputs Section */}
-        {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('agentOutputs')}</h2>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleExportResults}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('exportCurrentResults')}</span>
-                  <span className="sm:hidden">{language === 'it' ? 'Esporta' : 'Export'}</span>
-                </button>
-                <button
-                  onClick={handleSaveToHistory}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                >
-                  <Save className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('saveToHistory')}</span>
-                  <span className="sm:hidden">{language === 'it' ? 'Salva' : 'Save'}</span>
-                </button>
+            {/* AI Agents */}
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3">{t('aiAgents')}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {agents.map((agent) => (
+                  <AgentCard
+                    key={agent.id}
+                    agent={agent}
+                    isActive={agent.status === 'running'}
+                    language={language}
+                  />
+                ))}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <AnalysisReport
-                result={analysisResult}
+
+            {/* Invoices Table */}
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3">{t('invoicesTitle')}</h2>
+              <InvoicesTable
                 invoices={invoices}
-                isVisible={showAnalysisReport}
-                language={language}
-              />
-              <GeneratedMessages
-                messages={generatedMessages}
-                isVisible={showGeneratedMessages}
-                language={language}
-              />
-              <ResponseAnalysis
-                analysis={responseAnalysis}
-                isVisible={showResponseAnalysis}
+                onSelectInvoice={setSelectedInvoice}
+                selectedInvoiceId={selectedInvoice?.invoice_id}
                 language={language}
               />
             </div>
 
-            {/* Full AI Analysis Report */}
-            {analysisReportContent && (
-              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-500" />
-                    {t('fullAiReport')}
-                  </h3>
+            {/* Mobile: Pipeline, Logs & History (shown only on smaller screens) */}
+            <div className="xl:hidden space-y-4">
+              <WorkflowTimeline steps={workflowSteps} currentStep={currentStep} language={language} />
+              <LogsPanel logs={logs} onClear={clearLogs} language={language} />
+              <WorkflowHistory
+                language={language}
+                onLoadRun={handleLoadRun}
+                refreshTrigger={historyRefresh}
+              />
+            </div>
+
+            {/* Agent Outputs Section */}
+            {(showAnalysisReport || showGeneratedMessages || showResponseAnalysis) && (
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('agentOutputs')}</h2>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={handleCopyReport}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      title={language === 'it' ? 'Copia report' : 'Copy report'}
+                      onClick={handleExportResults}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
                     >
-                      {reportCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                      <span className="hidden xs:inline">{reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}</span>
+                      <ArrowDownTrayIcon className="w-4 h-4" />
+                      <span className="hidden sm:inline">{t('exportCurrentResults')}</span>
+                      <span className="sm:hidden">{language === 'it' ? 'Esporta' : 'Export'}</span>
                     </button>
                     <button
-                      onClick={handleExportPDF}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      title={language === 'it' ? 'PDF Rapido' : 'Quick PDF'}
+                      onClick={handleSaveToHistory}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
                     >
-                      <Download className="w-4 h-4" />
-                      <span className="hidden xs:inline">{language === 'it' ? 'PDF' : 'PDF'}</span>
-                    </button>
-                    <button
-                      onClick={handleExportComprehensivePDF}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
-                      title={language === 'it' ? 'Report PDF Completo con grafici e dettagli' : 'Complete PDF Report with charts and details'}
-                    >
-                      <FileDown className="w-4 h-4" />
-                      <span className="hidden xs:inline">{language === 'it' ? 'Report Completo' : 'Full Report'}</span>
+                      <BookmarkIcon className="w-4 h-4" />
+                      <span className="hidden sm:inline">{t('saveToHistory')}</span>
+                      <span className="sm:hidden">{language === 'it' ? 'Salva' : 'Save'}</span>
                     </button>
                   </div>
                 </div>
-                <div className="p-4 sm:p-6">
-                  <div className="prose dark:prose-invert max-w-none text-sm">
-                    <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-lg overflow-auto max-h-64 sm:max-h-96 text-xs sm:text-sm">
-                      {analysisReportContent}
-                    </pre>
-                  </div>
+                <div className="space-y-4">
+                  <AnalysisReport
+                    result={analysisResult}
+                    invoices={invoices}
+                    isVisible={showAnalysisReport}
+                    language={language}
+                  />
+                  <GeneratedMessages
+                    messages={generatedMessages}
+                    isVisible={showGeneratedMessages}
+                    language={language}
+                  />
+                  <ResponseAnalysis
+                    analysis={responseAnalysis}
+                    isVisible={showResponseAnalysis}
+                    language={language}
+                  />
                 </div>
+
+                {/* Full AI Analysis Report */}
+                {analysisReportContent && (
+                  <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <DocumentTextIcon className="w-5 h-5 text-gray-500" />
+                        {t('fullAiReport')}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleCopyReport}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          title={language === 'it' ? 'Copia report' : 'Copy report'}
+                        >
+                          {reportCopied ? <CheckIcon className="w-4 h-4 text-green-500" /> : <ClipboardDocumentIcon className="w-4 h-4" />}
+                          <span className="hidden xs:inline">{reportCopied ? (language === 'it' ? 'Copiato!' : 'Copied!') : (language === 'it' ? 'Copia' : 'Copy')}</span>
+                        </button>
+                        <button
+                          onClick={handleExportPDF}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          title={language === 'it' ? 'PDF Rapido' : 'Quick PDF'}
+                        >
+                          <ArrowDownTrayIcon className="w-4 h-4" />
+                          <span className="hidden xs:inline">{language === 'it' ? 'PDF' : 'PDF'}</span>
+                        </button>
+                        <button
+                          onClick={handleExportComprehensivePDF}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                          title={language === 'it' ? 'Report PDF Completo con grafici e dettagli' : 'Complete PDF Report with charts and details'}
+                        >
+                          <ArrowDownOnSquareIcon className="w-4 h-4" />
+                          <span className="hidden xs:inline">{language === 'it' ? 'Report Completo' : 'Full Report'}</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 sm:p-6">
+                      <div className="prose dark:prose-invert max-w-none text-sm">
+                        <pre className="whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 rounded-lg overflow-auto max-h-64 sm:max-h-96 text-xs sm:text-sm">
+                          {analysisReportContent}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-      </main>
+        </main>
+      </div>
 
       <FileUpload
         isOpen={isUploadOpen}

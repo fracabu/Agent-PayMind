@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Check, Loader2, Eye, EyeOff, Key } from 'lucide-react';
+import { XMarkIcon, CheckIcon, ArrowPathIcon, EyeIcon, EyeSlashIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface Provider {
@@ -108,13 +108,13 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{t('aiSettings')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
-            <X className="w-5 h-5" />
+            <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+            <ArrowPathIcon className="w-8 h-8 animate-spin text-blue-500" />
           </div>
         ) : (
           <div className="space-y-6">
@@ -173,7 +173,7 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
             {/* API Key Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <Key className="w-4 h-4 inline mr-1" />
+                <KeyIcon className="w-4 h-4 inline mr-1" />
                 {t('apiKey')} {currentProvider?.configured && `(${t('optionalIfConfigured')})`}
               </label>
               <div className="relative">
@@ -193,7 +193,7 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
                     onClick={() => setShowApiKey(!showApiKey)}
                     className="p-1 text-gray-400 hover:text-gray-600"
                   >
-                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showApiKey ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                   </button>
                   {apiKey && (
                     <button
@@ -202,7 +202,7 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
                       disabled={validating}
                       className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-600 rounded hover:bg-gray-200 dark:hover:bg-gray-500"
                     >
-                      {validating ? <Loader2 className="w-3 h-3 animate-spin" /> : t('verify')}
+                      {validating ? <ArrowPathIcon className="w-3 h-3 animate-spin" /> : t('verify')}
                     </button>
                   )}
                 </div>
@@ -211,7 +211,7 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
                 <p className={`text-sm mt-1 ${validationResult.valid ? 'text-green-600' : 'text-red-600'}`}>
                   {validationResult.valid ? (
                     <span className="flex items-center gap-1">
-                      <Check className="w-4 h-4" /> {t('apiKeyValid')}
+                      <CheckIcon className="w-4 h-4" /> {t('apiKeyValid')}
                     </span>
                   ) : (
                     validationResult.error

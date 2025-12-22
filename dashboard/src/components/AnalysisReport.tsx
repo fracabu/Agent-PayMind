@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Invoice, AnalysisResult } from '@/types';
-import { FileText, AlertTriangle, TrendingUp, Users, Copy, Download, Check } from 'lucide-react';
+import { DocumentTextIcon, ExclamationTriangleIcon, ArrowTrendingUpIcon, UsersIcon, ClipboardDocumentIcon, ArrowDownTrayIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface AnalysisReportProps {
@@ -74,7 +74,7 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20 flex items-center justify-between gap-2">
         <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 shrink-0" />
+          <DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 shrink-0" />
           <span className="truncate">{t('invoiceAnalysisReport')}</span>
         </h2>
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
@@ -83,14 +83,14 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
             className="p-1 sm:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title={language === 'it' ? 'Copia JSON' : 'Copy JSON'}
           >
-            {copied ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+            {copied ? <CheckIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" /> : <ClipboardDocumentIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
           <button
             onClick={handleDownload}
             className="p-1 sm:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title={language === 'it' ? 'Scarica JSON' : 'Download JSON'}
           >
-            <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowDownTrayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
         {/* Priority Breakdown */}
         <div>
           <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5 sm:gap-2">
-            <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ExclamationTriangleIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {t('prioritySegmentation')}
           </h3>
           <div className="space-y-1.5 sm:space-y-2">
@@ -150,7 +150,7 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
         {/* Financial Summary */}
         <div>
           <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5 sm:gap-2">
-            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowTrendingUpIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {t('financialSummary')}
           </h3>
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2 sm:p-3 space-y-1.5 sm:space-y-2">
@@ -174,7 +174,7 @@ export default function AnalysisReport({ result, invoices, isVisible, language }
         {/* Top Debtors */}
         <div>
           <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5 sm:gap-2">
-            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <UsersIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {t('topClientsCredit')}
           </h3>
           <div className="space-y-1.5 sm:space-y-2">

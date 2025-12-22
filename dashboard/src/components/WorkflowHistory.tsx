@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { History, Trash2, Eye, Download, ChevronDown, ChevronUp, Calendar, Clock, FileText } from 'lucide-react';
+import { ClockIcon, TrashIcon, EyeIcon, ArrowDownTrayIcon, ChevronDownIcon, ChevronUpIcon, CalendarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useTranslation, Language } from '@/lib/i18n';
 
 interface WorkflowRun {
@@ -130,7 +130,7 @@ export default function WorkflowHistory({ language, onLoadRun, refreshTrigger }:
       >
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-            <History className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+            <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
           </div>
           <div className="text-left">
             <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">{t('workflowHistory')}</h3>
@@ -140,9 +140,9 @@ export default function WorkflowHistory({ language, onLoadRun, refreshTrigger }:
           </div>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+          <ChevronUpIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
         ) : (
-          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+          <ChevronDownIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
         )}
       </button>
 

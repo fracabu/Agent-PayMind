@@ -52,6 +52,8 @@
 | 🗄️ **Database SQLite** | Persistenza dati con Prisma ORM |
 | 🌙 **Dark/Light Mode** | Toggle tra tema scuro e chiaro |
 | 🌍 **Bilingue** | Supporto completo Italiano e Inglese |
+| 📊 **Grafici Interattivi** | Dashboard con grafici priorità, stato e importi |
+| 📄 **Export PDF** | Report completo con grafici e analisi dettagliate |
 
 ### 🤖 Gli Agenti
 
@@ -148,6 +150,8 @@ Agent-PayMind/
 | **Tailwind CSS 4** | Styling + Dark Mode (class-based) |
 | **Zustand** | State Management + localStorage persistence |
 | **Prisma + SQLite** | Database ORM |
+| **Recharts** | Grafici interattivi |
+| **jsPDF** | Export PDF professionale |
 | **Lucide React** | Icone |
 
 ### 📋 Formato CSV
@@ -223,6 +227,8 @@ GEMINI_API_KEY=...              # Opzionale
 | 🗄️ **SQLite Database** | Data persistence with Prisma ORM |
 | 🌙 **Dark/Light Mode** | Toggle between dark and light themes |
 | 🌍 **Bilingual** | Full support for Italian and English |
+| 📊 **Interactive Charts** | Dashboard with priority, status and amount charts |
+| 📄 **PDF Export** | Comprehensive report with charts and detailed analytics |
 
 ### 🤖 The Agents
 
@@ -283,6 +289,8 @@ claude "response-handler-agent: analyze this response: [text]"
 | **Tailwind CSS 4** | Styling + Dark Mode (class-based) |
 | **Zustand** | State Management + localStorage persistence |
 | **Prisma + SQLite** | Database ORM |
+| **Recharts** | Interactive Charts |
+| **jsPDF** | Professional PDF Export |
 | **Lucide React** | Icons |
 
 ### 📊 Priority Levels
@@ -346,9 +354,12 @@ GEMINI_API_KEY=...              # Optional
 - [x] Dark/Light mode toggle
 - [x] Bilingual support (IT/EN)
 - [x] OpenRouter integration with 18+ models (5 FREE!)
+- [x] PDF report export with charts and analytics
+- [x] Interactive dashboard charts (recharts)
+- [x] 3-column responsive layout
+- [x] Pagination for invoice table
 - [ ] Email sending via SMTP
 - [ ] WhatsApp Business API integration
-- [ ] PDF report export
 - [ ] Multi-tenant support
 
 ## 🎬 Media & Resources
